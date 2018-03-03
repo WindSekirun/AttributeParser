@@ -208,8 +208,9 @@ public class AttributeParserProcessor extends AbstractProcessor {
         }
 
         builder.addField(createRFieldSpec(customViewHolder));
-        builder.addMethod(createPrintVariableMethodSpec(customViewHolder, models));
+        builder.addMethod(createObtainApplyMethodSpec(customViewHolder));
         builder.addMethod(createApplyMethodSpec(customViewHolder, models));
+        builder.addMethod(createPrintVariableMethodSpec(customViewHolder, models));
         builder.addMethod(createBindAttributesMethodSpec(customViewHolder, models));
 
         writeClass(builder.build());
@@ -290,6 +291,21 @@ public class AttributeParserProcessor extends AbstractProcessor {
 
         String message = stringBuilder.toString();
         builder.addCode(String.format(Constants.STATEMENT_LOG, customViewHolder.className, message));
+
+        return builder.build();
+    }
+
+    private MethodSpec createObtainApplyMethodSpec(CustomViewHolder customViewHolder) {
+        TypeName classTypeName = customViewHolder.classNameComplete;
+        String classTypeParameterName = customViewHolder.className.substring(0, 1).toLowerCase() +
+                customViewHolder.className.substring(1);
+
+        MethodSpec.Builder builder = MethodSpec.methodBuilder(Constants.OBTAIN_APPLY)
+                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                .addParameter(classTypeName, classTypeParameterName)
+                .addParameter(Constants.ATTRIBUTE_SET_CLASS_NAME, Constants.SET)
+                .addCode(String.format(Constants.STATEMENT_OBTAIN_APPLY, classTypeParameterName,
+                        classTypeParameterName, customViewHolder.className));
 
         return builder.build();
     }

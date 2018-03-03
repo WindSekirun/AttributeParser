@@ -1,7 +1,6 @@
 package pyxis.uzuki.live.attribute.parser.demo;
 
 import android.content.Context;
-import android.content.res.TypedArray;
 import android.util.AttributeSet;
 import android.widget.LinearLayout;
 
@@ -44,8 +43,7 @@ public class StyleView extends LinearLayout {
     }
 
     private void init(AttributeSet attributeSet) {
-        TypedArray array = getContext().obtainStyledAttributes(attributeSet, R.styleable.StyleView);
-        StyleViewAttributes.apply(this, array);
+        StyleViewAttributes.apply(this, attributeSet);
         StyleViewAttributes.printVariables();
     }
 }

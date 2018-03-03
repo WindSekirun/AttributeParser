@@ -2,7 +2,6 @@ package pyxis.uzuki.live.attribute.parser.demo;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.util.Log;
 
 /**
  * AttributesParser
