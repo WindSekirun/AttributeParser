@@ -27,7 +27,7 @@ dependencies {
 2. Attach ```@AttrInt```, ```@AttrColor``` annotation to field
 3. Clean - Build Project
 4. Done! Attribute class will generated at compile time.
-5. using ```StyleViewAttribute.apply(this, attributeSet)``` or ```StyleViewAttributes.apply(this, typedArray)``` for set variable from ```declare-styleable```
+5. using ```StyleViewAttributes.apply(this, attributeSet)``` or ```StyleViewAttributes.apply(this, typedArray)``` for set variable from ```declare-styleable```
 
 ### Advance
 
