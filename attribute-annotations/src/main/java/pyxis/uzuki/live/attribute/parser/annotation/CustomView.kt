@@ -1,5 +1,8 @@
 package pyxis.uzuki.live.attribute.parser.annotation
 
-@Target(AnnotationTarget.CLASS)
-@Retention(AnnotationRetention.SOURCE)
+import java.lang.annotation.Retention
+import java.lang.annotation.RetentionPolicy
+
+@Target(AnnotationTarget.CLASS, AnnotationTarget.FILE)
+@Retention(RetentionPolicy.SOURCE)
 annotation class CustomView
