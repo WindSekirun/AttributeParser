@@ -8,6 +8,10 @@ generate own class to handle attributes using Annotation Processor.
 
 Written in Java and Kotlin, both language are fully supported!
 
+## Post
+* (Korean) [커스텀 뷰의 XML 속성 파싱 라이브러리, AttributeParser 소개](https://blog.uzuki.live/커스텀-뷰의-xml-속성-파싱-라이브러리-attributeparser-소개/)
+* (English) Writing... 
+
 ## Import
 
 Waiting for uploading to bintray...
