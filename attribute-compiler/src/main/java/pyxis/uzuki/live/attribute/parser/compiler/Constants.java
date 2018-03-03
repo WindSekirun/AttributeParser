@@ -13,9 +13,11 @@ class Constants {
     static final String ARRAY = "array";
     static final String BIND_ATTRIBUTES_INVOKE = "bindAttributes(array);\n\n";
     static final String STATEMENT_APPLY = "%s.%s = %s;\n";
+    static final String PRINT_VARIABLES = "printVariables";
     static final String BIND_ATTRIBUTES = "bindAttributes";
     static final String STATEMENT_BINDATTRIBUTES = "if (array == null) return;\n\n";
     static final String STATEMENT_RECYCLE = "\narray.recycle();\n";
+    static final String STATEMENT_LOG = "android.util.Log.d(\"%s\", %s);\n";
 
     static final TypeName TYPED_ARRAY_CLASS_NAME = ClassName.bestGuess("android.content.res.TypedArray");
 }

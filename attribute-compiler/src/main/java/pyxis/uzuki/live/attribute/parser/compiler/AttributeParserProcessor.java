@@ -49,6 +49,7 @@ import pyxis.uzuki.live.attribute.parser.compiler.model.AttrResourceModel;
 import pyxis.uzuki.live.attribute.parser.compiler.model.AttrStringModel;
 import pyxis.uzuki.live.attribute.parser.compiler.model.BaseAttrModel;
 import pyxis.uzuki.live.attribute.parser.compiler.utils.AttrModelUtils;
+import pyxis.uzuki.live.attribute.parser.compiler.utils.StringUtils;
 import pyxis.uzuki.live.attribute.parser.compiler.utils.TypeNameUtils;
 
 /**
@@ -261,21 +262,34 @@ public class AttributeParserProcessor extends AbstractProcessor {
     }
 
     private MethodSpec createPrintVariableMethodSpec(CustomViewHolder customViewHolder, List<BaseAttrModel> models) {
-        MethodSpec.Builder builder = MethodSpec.methodBuilder("printVariables")
+        MethodSpec.Builder builder = MethodSpec.methodBuilder(Constants.PRINT_VARIABLES)
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC);
 
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("\"").append(customViewHolder.className).append(" = {\" + ");
+        StringBuilder variablesBuilder = new StringBuilder();
+        int maxinum = 0;
         for (int i = 0; i < models.size(); i++) {
             BaseAttrModel model = models.get(i);
-            stringBuilder.append("\"\\n").append(model.getAnnotatedElementClass()).append(" ")
-                    .append(model.getAnnotatedElementName()).append(" = \" + ")
-                    .append(model.getAnnotatedElementName()).append(" +  \n");
-        }
-        stringBuilder.append("\"\\n}\"");
+            String variableName = model.getAnnotatedElementName();
+            String className = model.getAnnotatedElementClass();
+            String line = "\"\\n" + className + " " + variableName + " = \" + " + variableName + " +  \n";
 
-        builder.addCode(String.format("String variables = %s;\n", stringBuilder.toString()));
-        builder.addCode(String.format("android.util.Log.d(\"%s\", variables);\n", customViewHolder.className));
+            variablesBuilder.append(line);
+
+            int count = line.length();
+            maxinum = Math.max(maxinum, count);
+        }
+
+        StringBuilder stringBuilder = new StringBuilder();
+        String lastLine = StringUtils.multiply("=", maxinum);
+        String firstLine = StringUtils.multiply("=", (maxinum - customViewHolder.className.length() - 2) / 2);
+        String firstLineMessage = String.format("\"%s %s %s\" + \n", firstLine, customViewHolder.className, firstLine);
+
+        stringBuilder.append(firstLineMessage);
+        stringBuilder.append(variablesBuilder.toString());
+        stringBuilder.append(String.format("\"\\n%s\"", lastLine));
+
+        String message = stringBuilder.toString();
+        builder.addCode(String.format(Constants.STATEMENT_LOG, customViewHolder.className, message));
 
         return builder.build();
     }
