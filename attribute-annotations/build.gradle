@@ -3,3 +3,32 @@ apply plugin: 'kotlin'
 
 targetCompatibility = JavaVersion.VERSION_1_8
 sourceCompatibility = JavaVersion.VERSION_1_8
+
+ext {
+    bintrayRepo = 'maven'
+    bintrayName = 'attribute-parser'
+    orgName = 'windsekirun'
+
+    publishedGroupId = 'com.github.windsekirun'
+    libraryName = 'AttributeParser'
+    artifact = 'attribute-parser'
+
+    libraryDescription = 'Inject automatically your Attribute of CustomView, just with simple annotation'
+
+    siteUrl = 'https://github.com/WindSekirun/AttributeParser'
+    gitUrl = 'https://github.com/WindSekirun/AttributeParser.git'
+
+    libraryVersion = rootProject.ext.libraryVersion
+
+    developerId = 'WindSekirun'
+    developerName = 'WindSekirun'
+    developerEmail = 'pyxis@uzuki.live'
+
+    licenseName = 'The Apache Software License, Version 2.0'
+    licenseUrl = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+    allLicenses = ["Apache-2.0"]
+}
+
+
+apply from: rootProject.file('gradle/install-v1.gradle')
+apply from: rootProject.file('gradle/bintray-java-v1.gradle')
