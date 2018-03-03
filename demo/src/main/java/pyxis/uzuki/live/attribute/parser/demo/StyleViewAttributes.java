@@ -13,5 +13,7 @@ public class StyleViewAttributes extends BaseAttributes {
         }
 
         hintText = array.getInt(R.styleable.StyleView_hintText, 0);
+
+        array.recycle();
     }
 }
