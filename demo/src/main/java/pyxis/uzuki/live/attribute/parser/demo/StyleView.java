@@ -1,11 +1,14 @@
-package pyxis.uzuki.live.attributesparser.demo;
+package pyxis.uzuki.live.attribute.parser.demo;
 
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.widget.LinearLayout;
 
-import pyxis.uzuki.live.attributesparser.R;
+import pyxis.uzuki.live.attribute.parser.StyleViewAttributes;
+import pyxis.uzuki.live.attribute.parser.annotation.AttrInt;
+import pyxis.uzuki.live.attribute.parser.annotation.CustomView;
 
 /**
  * AttributesParser
@@ -15,7 +18,9 @@ import pyxis.uzuki.live.attributesparser.R;
  * Description:
  */
 
+@CustomView
 public class StyleView extends LinearLayout {
+    public @AttrInt int hintText;
 
     public StyleView(Context context) {
         super(context);
@@ -29,7 +34,7 @@ public class StyleView extends LinearLayout {
 
     private void init(AttributeSet attributeSet) {
         TypedArray array = getContext().obtainStyledAttributes(attributeSet, R.styleable.StyleView);
-
-        StyleViewAttributes attributes = new StyleViewAttributes(array);
+        StyleViewAttributes.apply(this, array);
+        Log.d(StyleView.class.getSimpleName(), "init: hintText = " + hintText);
     }
 }

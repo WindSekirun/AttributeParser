@@ -1,5 +1,8 @@
 package pyxis.uzuki.live.attribute.parser.demo;
 
+import android.app.Activity;
+import android.os.Bundle;
+
 /**
  * AttributesParser
  * Class: MainActivity
@@ -8,5 +11,11 @@ package pyxis.uzuki.live.attribute.parser.demo;
  * Description:
  */
 
-public class MainActivity {
+public class MainActivity extends Activity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+    }
 }

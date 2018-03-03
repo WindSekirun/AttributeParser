@@ -16,20 +16,12 @@ import pyxis.uzuki.live.attribute.parser.annotation.AttrInt;
  * Description:
  */
 
-public class AttrIntModel {
-    private VariableElement mElement;
-    private String mSource;
-    private int mDefValue;
-    private String mEnclosingClass;
+public class BaseAttrModel {
+    protected VariableElement mElement;
+    protected String mEnclosingClass;
 
-    public AttrIntModel(VariableElement element) {
+    public BaseAttrModel(VariableElement element) {
         this.mElement = element;
-        AttrInt annotation = element.getAnnotation(AttrInt.class);
-
-        mSource = annotation.value();
-        mDefValue = annotation.defValue();
-
-        findEnclosingClass();
     }
 
     /**
@@ -80,13 +72,5 @@ public class AttrIntModel {
 
     public String getEnclosingClass() {
         return mEnclosingClass;
-    }
-
-    public String getSource() {
-        return mSource;
-    }
-
-    public int getDefValue() {
-        return mDefValue;
     }
 }

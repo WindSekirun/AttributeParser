@@ -3,7 +3,7 @@ package pyxis.uzuki.live.attribute.parser.compiler.model;
 import javax.lang.model.element.VariableElement;
 
 import pyxis.uzuki.live.attribute.parser.annotation.AttrColor;
-import pyxis.uzuki.live.attribute.parser.annotation.AttrInt;
+import pyxis.uzuki.live.attribute.parser.annotation.AttrDrawable;
 
 /**
  * AttributesParser
@@ -13,14 +13,14 @@ import pyxis.uzuki.live.attribute.parser.annotation.AttrInt;
  * Description:
  */
 
-public class AttrColorModel extends BaseAttrModel {
+public class AttrDrawableModel extends BaseAttrModel {
     private String mSource;
     private int mDefValue;
 
-    public AttrColorModel(VariableElement element) {
+    public AttrDrawableModel(VariableElement element) {
         super(element);
 
-        AttrColor annotation = element.getAnnotation(AttrColor.class);
+        AttrDrawable annotation = element.getAnnotation(AttrDrawable.class);
 
         mSource = annotation.value();
         mDefValue = annotation.def();

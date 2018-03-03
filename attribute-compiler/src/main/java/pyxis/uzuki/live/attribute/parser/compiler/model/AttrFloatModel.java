@@ -2,8 +2,8 @@ package pyxis.uzuki.live.attribute.parser.compiler.model;
 
 import javax.lang.model.element.VariableElement;
 
-import pyxis.uzuki.live.attribute.parser.annotation.AttrColor;
 import pyxis.uzuki.live.attribute.parser.annotation.AttrDimension;
+import pyxis.uzuki.live.attribute.parser.annotation.AttrFloat;
 
 /**
  * AttributesParser
@@ -13,14 +13,14 @@ import pyxis.uzuki.live.attribute.parser.annotation.AttrDimension;
  * Description:
  */
 
-public class AttrDimensionModel extends BaseAttrModel {
+public class AttrFloatModel extends BaseAttrModel {
     private String mSource;
     private float mDefValue;
 
-    public AttrDimensionModel(VariableElement element) {
+    public AttrFloatModel(VariableElement element) {
         super(element);
 
-        AttrDimension annotation = element.getAnnotation(AttrDimension.class);
+        AttrFloat annotation = element.getAnnotation(AttrFloat.class);
 
         mSource = annotation.value();
         mDefValue = annotation.def();

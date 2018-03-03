@@ -2,7 +2,7 @@ package pyxis.uzuki.live.attribute.parser.compiler.model;
 
 import javax.lang.model.element.VariableElement;
 
-import pyxis.uzuki.live.attribute.parser.annotation.AttrInt;
+import pyxis.uzuki.live.attribute.parser.annotation.AttrBoolean;
 
 /**
  * AttributesParser
@@ -12,17 +12,17 @@ import pyxis.uzuki.live.attribute.parser.annotation.AttrInt;
  * Description:
  */
 
-public class AttrIntModel extends BaseAttrModel {
+public class AttrBooleanModel extends BaseAttrModel {
     private String mSource;
-    private int mDefValue;
+    private boolean mDefValue;
 
-    public AttrIntModel(VariableElement element) {
+    public AttrBooleanModel(VariableElement element) {
         super(element);
 
-        AttrInt annotation = element.getAnnotation(AttrInt.class);
+        AttrBoolean annotation = element.getAnnotation(AttrBoolean.class);
 
         mSource = annotation.value();
-        mDefValue = annotation.defValue();
+        mDefValue = annotation.def();
 
         findEnclosingClass();
     }
@@ -31,7 +31,7 @@ public class AttrIntModel extends BaseAttrModel {
         return mSource;
     }
 
-    public int getDefValue() {
+    public boolean getDefValue() {
         return mDefValue;
     }
 }
