@@ -44,6 +44,9 @@ public class TypeNameUtils {
             case "double":
                 typeName = TypeName.DOUBLE;
                 break;
+            case "boolean":
+                typeName = TypeName.BOOLEAN;
+                break;
             default:
                 typeName = ClassName.bestGuess(elementName);
                 break;

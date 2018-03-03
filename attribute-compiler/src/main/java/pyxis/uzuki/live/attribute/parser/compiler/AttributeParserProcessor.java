@@ -207,6 +207,7 @@ public class AttributeParserProcessor extends AbstractProcessor {
         }
 
         builder.addField(createRFieldSpec(customViewHolder));
+        builder.addMethod(createPrintVariableMethodSpec(customViewHolder, models));
         builder.addMethod(createApplyMethodSpec(customViewHolder, models));
         builder.addMethod(createBindAttributesMethodSpec(customViewHolder, models));
 
@@ -255,6 +256,26 @@ public class AttributeParserProcessor extends AbstractProcessor {
 
         FieldSpec.Builder builder = FieldSpec.builder(typeName, variableName)
                 .addModifiers(Modifier.PRIVATE, Modifier.STATIC);
+
+        return builder.build();
+    }
+
+    private MethodSpec createPrintVariableMethodSpec(CustomViewHolder customViewHolder, List<BaseAttrModel> models) {
+        MethodSpec.Builder builder = MethodSpec.methodBuilder("printVariables")
+                .addModifiers(Modifier.PUBLIC, Modifier.STATIC);
+
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("\"").append(customViewHolder.className).append(" = {\" + ");
+        for (int i = 0; i < models.size(); i++) {
+            BaseAttrModel model = models.get(i);
+            stringBuilder.append("\"\\n").append(model.getAnnotatedElementClass()).append(" ")
+                    .append(model.getAnnotatedElementName()).append(" = \" + ")
+                    .append(model.getAnnotatedElementName()).append(" +  \n");
+        }
+        stringBuilder.append("\"\\n}\"");
+
+        builder.addCode(String.format("String variables = %s;\n", stringBuilder.toString()));
+        builder.addCode(String.format("android.util.Log.d(\"%s\", variables);\n", customViewHolder.className));
 
         return builder.build();
     }

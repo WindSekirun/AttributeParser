@@ -49,7 +49,7 @@ public class AttrModelUtils {
         String source = reviseSource(className, variableName, model.getSource());
         float defValue = model.getDefValue();
 
-        return String.format("%s = array.getDimension(%s, %s);\n", variableName, source, defValue);
+        return String.format("%s = array.getDimension(%s, %sf);\n", variableName, source, defValue);
     }
 
     public static String createDimensionPixelCode(AttrDimensionPixelSizeModel model, String className) {
@@ -72,7 +72,7 @@ public class AttrModelUtils {
         String source = reviseSource(className, variableName, model.getSource());
         float defValue = model.getDefValue();
 
-        return String.format("%s = array.getFloat(%s, %s);\n", variableName, source, defValue);
+        return String.format("%s = array.getFloat(%s, %sf);\n", variableName, source, defValue);
     }
 
     public static String createResourceCode(AttrResourceModel model, String className) {
@@ -80,14 +80,14 @@ public class AttrModelUtils {
         String source = reviseSource(className, variableName, model.getSource());
         int defValue = model.getDefValue();
 
-        return String.format("%s = array.getResource(%s, %s);\n", variableName, source, defValue);
+        return String.format("%s = array.getResourceId(%s, %s);\n", variableName, source, defValue);
     }
 
     public static String createStringCode(AttrStringModel model, String className) {
         String variableName = model.getAnnotatedElementName();
         String source = reviseSource(className, variableName, model.getSource());
 
-        return String.format("%s = array.getInt(%s);\n", variableName, source);
+        return String.format("%s = array.getString(%s);\n", variableName, source);
     }
 
     private static String reviseSource(String className, String variableName, String source) {

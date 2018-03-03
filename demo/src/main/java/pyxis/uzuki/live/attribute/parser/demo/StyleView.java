@@ -3,11 +3,16 @@ package pyxis.uzuki.live.attribute.parser.demo;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.widget.LinearLayout;
 
 import pyxis.uzuki.live.attribute.parser.StyleViewAttributes;
+import pyxis.uzuki.live.attribute.parser.annotation.AttrBoolean;
+import pyxis.uzuki.live.attribute.parser.annotation.AttrColor;
+import pyxis.uzuki.live.attribute.parser.annotation.AttrDimension;
+import pyxis.uzuki.live.attribute.parser.annotation.AttrFloat;
 import pyxis.uzuki.live.attribute.parser.annotation.AttrInt;
+import pyxis.uzuki.live.attribute.parser.annotation.AttrResource;
+import pyxis.uzuki.live.attribute.parser.annotation.AttrString;
 import pyxis.uzuki.live.attribute.parser.annotation.CustomView;
 
 /**
@@ -20,7 +25,13 @@ import pyxis.uzuki.live.attribute.parser.annotation.CustomView;
 
 @CustomView
 public class StyleView extends LinearLayout {
-    public @AttrInt int hintText;
+    public @AttrInt int intTest;
+    public @AttrBoolean boolean booleanTest;
+    public @AttrColor int colorTest;
+    public @AttrDimension float dimensionTest;
+    public @AttrFloat float floatTest;
+    public @AttrResource int resourceTest;
+    public @AttrString String stringTest;
 
     public StyleView(Context context) {
         super(context);
@@ -35,6 +46,6 @@ public class StyleView extends LinearLayout {
     private void init(AttributeSet attributeSet) {
         TypedArray array = getContext().obtainStyledAttributes(attributeSet, R.styleable.StyleView);
         StyleViewAttributes.apply(this, array);
-        Log.d(StyleView.class.getSimpleName(), "init: hintText = " + hintText);
+        StyleViewAttributes.printVariables();
     }
 }
