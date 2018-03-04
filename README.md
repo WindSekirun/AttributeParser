@@ -1,10 +1,16 @@
-# AttributeParser [![codebeat badge](https://codebeat.co/badges/131cade3-7cd7-498d-97c1-f63e29bc97d1)](https://codebeat.co/projects/github-com-windsekirun-attributeparser-master)
+# AttributeParser [![codebeat badge](https://codebeat.co/badges/131cade3-7cd7-498d-97c1-f63e29bc97d1)](https://codebeat.co/projects/github-com-windsekirun-attributeparser-master) [ ![Download](https://api.bintray.com/packages/windsekirun/maven/attribute-parser/images/download.svg) ](https://bintray.com/windsekirun/maven/attribute-parser/_latestVersion)
+
+[![GitHub license](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg?style=flat)](http://www.apache.org/licenses/LICENSE-2.0) 
 
 **Inject automatically your Attribute of CustomView, just with simple annotation**
 
 generate own class to handle attributes using Annotation Processor.
 
 Written in Java and Kotlin, both language are fully supported!
+
+## Post
+* (Korean) [커스텀 뷰의 XML 속성 파싱 라이브러리, AttributeParser 소개](https://blog.uzuki.live/커스텀-뷰의-xml-속성-파싱-라이브러리-attributeparser-소개/)
+* (English) Writing... 
 
 ## Import
 
@@ -27,7 +33,7 @@ dependencies {
 2. Attach ```@AttrInt```, ```@AttrColor``` annotation to field
 3. Clean - Build Project
 4. Done! Attribute class will generated at compile time.
-5. using ```StyleViewAttribute.apply(this, attributeSet)``` or ```StyleViewAttributes.apply(this, typedArray)``` for set variable from ```declare-styleable```
+5. using ```StyleViewAttributes.apply(this, attributeSet)``` or ```StyleViewAttributes.apply(this, typedArray)``` for set variable from ```declare-styleable```
 
 ### Advance
 
