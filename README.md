@@ -17,6 +17,12 @@ Written in Java and Kotlin, both language are fully supported!
 Waiting for uploading to bintray...
 
 ```
+repositories {
+    maven { url "https://dl.bintray.com/windsekirun/maven/" }
+}
+```
+
+```
 dependencies {
     // AttributeParser
     implementation 'com.github.windsekirun:attribute-parser:1.0.1'
@@ -26,6 +32,7 @@ dependencies {
     kapt 'com.github.windsekirun:attribute-parser-compiler:1.0.1'
 }
 ```
+
 
 ## Usages
 
