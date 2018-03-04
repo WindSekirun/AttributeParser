@@ -1,1 +1,1 @@
-include ':demo', ':attribute-annotations', ':attribute-compiler'
+include ':demo', ':attribute-parser', ':attribute-parser-compiler'
