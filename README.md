@@ -19,11 +19,11 @@ Waiting for uploading to bintray...
 ```
 dependencies {
     // AttributeParser
-    implementation 'com.github.windsekirun:attribute-parser:1.0.0'
-    annotationProcessor 'com.github.windsekirun:attribute-parser-compiler:1.0.0'
+    implementation 'com.github.windsekirun:attribute-parser:1.0.1'
+    annotationProcessor 'com.github.windsekirun:attribute-parser-compiler:1.0.1'
 
     // if your app using Kotlin?
-    kapt 'com.github.windsekirun:attribute-parser-compiler:1.0.0'
+    kapt 'com.github.windsekirun:attribute-parser-compiler:1.0.1'
 }
 ```
 
