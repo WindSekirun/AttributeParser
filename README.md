@@ -13,15 +13,6 @@ Written in Java and Kotlin, both language are fully supported!
 * (English) Writing... 
 
 ## Import
-
-Waiting for uploading to bintray...
-
-```
-repositories {
-    maven { url "https://dl.bintray.com/windsekirun/maven/" }
-}
-```
-
 ```
 dependencies {
     // AttributeParser
