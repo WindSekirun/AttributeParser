@@ -8,7 +8,7 @@ dependencies {
     compile 'com.google.auto.service:auto-service:1.0-rc3'
 
     compile project(':attribute-parser')
-
+    compile "org.jetbrains.kotlin:kotlin-reflect:1.2.30"
 }
 
 ext {

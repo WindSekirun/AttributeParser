@@ -9,10 +9,8 @@ import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.processing.AbstractProcessor;
@@ -25,18 +23,10 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.element.VariableElement;
 
-import pyxis.uzuki.live.attribute.parser.annotation.AttrBoolean;
-import pyxis.uzuki.live.attribute.parser.annotation.AttrColor;
-import pyxis.uzuki.live.attribute.parser.annotation.AttrDimension;
-import pyxis.uzuki.live.attribute.parser.annotation.AttrDimensionPixelSize;
-import pyxis.uzuki.live.attribute.parser.annotation.AttrDrawable;
-import pyxis.uzuki.live.attribute.parser.annotation.AttrFloat;
-import pyxis.uzuki.live.attribute.parser.annotation.AttrInt;
-import pyxis.uzuki.live.attribute.parser.annotation.AttrResource;
-import pyxis.uzuki.live.attribute.parser.annotation.AttrString;
 import pyxis.uzuki.live.attribute.parser.annotation.CustomView;
+import pyxis.uzuki.live.attribute.parser.compiler.utils.AttrModelUtils;
+import pyxis.uzuki.live.attribute.parser.compiler.utils.CommonEx;
 import pyxis.uzuki.live.attribute.parser.model.AttrBooleanModel;
 import pyxis.uzuki.live.attribute.parser.model.AttrColorModel;
 import pyxis.uzuki.live.attribute.parser.model.AttrDimensionModel;
@@ -48,9 +38,8 @@ import pyxis.uzuki.live.attribute.parser.model.AttrResourceModel;
 import pyxis.uzuki.live.attribute.parser.model.AttrStringModel;
 import pyxis.uzuki.live.attribute.parser.model.BaseAttrModel;
 import pyxis.uzuki.live.attribute.parser.model.CustomViewHolder;
-import pyxis.uzuki.live.attribute.parser.compiler.utils.AttrModelUtils;
-import pyxis.uzuki.live.attribute.parser.compiler.utils.StringUtils;
-import pyxis.uzuki.live.attribute.parser.compiler.utils.TypeNameUtils;
+
+import static pyxis.uzuki.live.attribute.parser.compiler.utils.AttrModelUtils.parseModelIntoMap;
 
 /**
  * AttributesParser
@@ -74,16 +63,16 @@ import pyxis.uzuki.live.attribute.parser.compiler.utils.TypeNameUtils;
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 @AutoService(javax.annotation.processing.Processor.class)
 public class AttributeParserProcessor extends AbstractProcessor {
-    private Map<ClassName, CustomViewHolder> mCustomViewHolderMap = new HashMap<>();
-    private Map<String, List<AttrIntModel>> mAttrIntMap = new HashMap<>();
-    private Map<String, List<AttrBooleanModel>> mAttrBooleanMap = new HashMap<>();
-    private Map<String, List<AttrColorModel>> mAttrColorMap = new HashMap<>();
-    private Map<String, List<AttrDimensionModel>> mAttrDimensionMap = new HashMap<>();
-    private Map<String, List<AttrDimensionPixelSizeModel>> mAttrDimensionPixelSizeMap = new HashMap<>();
-    private Map<String, List<AttrDrawableModel>> mAttrDrawableMap = new HashMap<>();
-    private Map<String, List<AttrFloatModel>> mAttrFloatMap = new HashMap<>();
-    private Map<String, List<AttrResourceModel>> mAttrResourceMap = new HashMap<>();
-    private Map<String, List<AttrStringModel>> mAttrStringMap = new HashMap<>();
+    private HashMap<ClassName, CustomViewHolder> mCustomViewHolderMap = new HashMap<>();
+    private HashMap<String, List<AttrIntModel>> mAttrIntMap = new HashMap<>();
+    private HashMap<String, List<AttrBooleanModel>> mAttrBooleanMap = new HashMap<>();
+    private HashMap<String, List<AttrColorModel>> mAttrColorMap = new HashMap<>();
+    private HashMap<String, List<AttrDimensionModel>> mAttrDimensionMap = new HashMap<>();
+    private HashMap<String, List<AttrDimensionPixelSizeModel>> mAttrDimensionPixelSizeMap = new HashMap<>();
+    private HashMap<String, List<AttrDrawableModel>> mAttrDrawableMap = new HashMap<>();
+    private HashMap<String, List<AttrFloatModel>> mAttrFloatMap = new HashMap<>();
+    private HashMap<String, List<AttrResourceModel>> mAttrResourceMap = new HashMap<>();
+    private HashMap<String, List<AttrStringModel>> mAttrStringMap = new HashMap<>();
     private Filer mFiler;
 
     @Override
@@ -106,79 +95,17 @@ public class AttributeParserProcessor extends AbstractProcessor {
             mCustomViewHolderMap.put(classFullName, new CustomViewHolder(element, classFullName, className));
         }
 
-        for (Element element : env.getElementsAnnotatedWith(AttrInt.class)) {
-            AttrIntModel model = new AttrIntModel((VariableElement) element);
-            if (!model.isValid()) continue;
-
-            updateAttrMapList(mAttrIntMap, model);
-        }
-
-        for (Element element : env.getElementsAnnotatedWith(AttrString.class)) {
-            AttrStringModel model = new AttrStringModel((VariableElement) element);
-            if (!model.isValid()) continue;
-
-            updateAttrMapList(mAttrStringMap, model);
-        }
-
-        for (Element element : env.getElementsAnnotatedWith(AttrBoolean.class)) {
-            AttrBooleanModel model = new AttrBooleanModel((VariableElement) element);
-            if (!model.isValid()) continue;
-
-            updateAttrMapList(mAttrBooleanMap, model);
-        }
-
-        for (Element element : env.getElementsAnnotatedWith(AttrColor.class)) {
-            AttrColorModel model = new AttrColorModel((VariableElement) element);
-            if (!model.isValid()) continue;
-
-            updateAttrMapList(mAttrColorMap, model);
-        }
-
-        for (Element element : env.getElementsAnnotatedWith(AttrDimension.class)) {
-            AttrDimensionModel model = new AttrDimensionModel((VariableElement) element);
-            if (!model.isValid()) continue;
-
-            updateAttrMapList(mAttrDimensionMap, model);
-        }
-
-        for (Element element : env.getElementsAnnotatedWith(AttrDimensionPixelSize.class)) {
-            AttrDimensionPixelSizeModel model = new AttrDimensionPixelSizeModel((VariableElement) element);
-            if (!model.isValid()) continue;
-
-            updateAttrMapList(mAttrDimensionPixelSizeMap, model);
-        }
-
-        for (Element element : env.getElementsAnnotatedWith(AttrDrawable.class)) {
-            AttrDrawableModel model = new AttrDrawableModel((VariableElement) element);
-            if (!model.isValid()) continue;
-
-            updateAttrMapList(mAttrDrawableMap, model);
-        }
-
-        for (Element element : env.getElementsAnnotatedWith(AttrFloat.class)) {
-            AttrFloatModel model = new AttrFloatModel((VariableElement) element);
-            if (!model.isValid()) continue;
-
-            updateAttrMapList(mAttrFloatMap, model);
-        }
-
-        for (Element element : env.getElementsAnnotatedWith(AttrResource.class)) {
-            AttrResourceModel model = new AttrResourceModel((VariableElement) element);
-            if (!model.isValid()) continue;
-
-            updateAttrMapList(mAttrResourceMap, model);
-        }
+        parseModelIntoMap(env, mAttrIntMap, AttrModelUtils.getAttrIntPair());
+        parseModelIntoMap(env, mAttrStringMap, AttrModelUtils.getAttrStringPair());
+        parseModelIntoMap(env, mAttrBooleanMap, AttrModelUtils.getAttrBooleanPair());
+        parseModelIntoMap(env, mAttrColorMap, AttrModelUtils.getAttrColorPair());
+        parseModelIntoMap(env, mAttrDimensionMap, AttrModelUtils.getAttrDimensionPair());
+        parseModelIntoMap(env, mAttrDimensionPixelSizeMap, AttrModelUtils.getAttrDimensionPixelSizePair());
+        parseModelIntoMap(env, mAttrDrawableMap, AttrModelUtils.getAttrDrawablePair());
+        parseModelIntoMap(env, mAttrFloatMap, AttrModelUtils.getAttrFloatPair());
+        parseModelIntoMap(env, mAttrResourceMap, AttrModelUtils.getAttrResourcePair());
     }
 
-    private <T extends BaseAttrModel> void updateAttrMapList(Map<String, List<T>> map, T model) {
-        List<T> elementsClasses = map.get(model.getEnclosingClass());
-        if (elementsClasses == null || elementsClasses.isEmpty()) {
-            elementsClasses = new ArrayList<>();
-        }
-
-        elementsClasses.add(model);
-        map.put(model.getEnclosingClass(), elementsClasses);
-    }
 
     private void writeFile() {
         for (CustomViewHolder customViewHolder : mCustomViewHolderMap.values()) {
@@ -201,7 +128,9 @@ public class AttributeParserProcessor extends AbstractProcessor {
         TypeSpec.Builder builder = TypeSpec.classBuilder(customViewHolder.getClassName() + Constants.ATTRIBUTES)
                 .addModifiers(Modifier.PUBLIC);
 
-        List<BaseAttrModel> models = getTargetList(customViewHolder.getClassName());
+        List<BaseAttrModel> models = AttrModelUtils.getModelList(customViewHolder.getClassName(),
+                mAttrIntMap, mAttrStringMap, mAttrBooleanMap, mAttrColorMap, mAttrDimensionMap, mAttrDimensionPixelSizeMap,
+                mAttrDrawableMap, mAttrFloatMap, mAttrResourceMap);
 
         for (BaseAttrModel model : models) {
             builder.addField(createAttrsFieldSpec(model));
@@ -216,33 +145,6 @@ public class AttributeParserProcessor extends AbstractProcessor {
         writeClass(builder.build());
     }
 
-    private List<BaseAttrModel> getTargetList(String className) {
-        List<BaseAttrModel> models = new ArrayList<>();
-        models.addAll(getTargetList(mAttrBooleanMap, className));
-        models.addAll(getTargetList(mAttrColorMap, className));
-        models.addAll(getTargetList(mAttrDimensionMap, className));
-        models.addAll(getTargetList(mAttrDrawableMap, className));
-        models.addAll(getTargetList(mAttrIntMap, className));
-        models.addAll(getTargetList(mAttrDimensionPixelSizeMap, className));
-        models.addAll(getTargetList(mAttrFloatMap, className));
-        models.addAll(getTargetList(mAttrResourceMap, className));
-        models.addAll(getTargetList(mAttrStringMap, className));
-        return models;
-    }
-
-    private <T extends BaseAttrModel> List<T> getTargetList(Map<String, List<T>> map, String className) {
-        List<T> models = new ArrayList<>();
-
-        for (Map.Entry<String, List<T>> entry : map.entrySet()) {
-            if (entry.getKey().contains(className)) {
-                models = entry.getValue();
-                break;
-            }
-        }
-
-        return models;
-    }
-
     private FieldSpec createRFieldSpec(CustomViewHolder customViewHolder) {
         TypeName typeName = ClassName.bestGuess(customViewHolder.getClassNameComplete().packageName() + Constants.R_FILE);
 
@@ -254,7 +156,7 @@ public class AttributeParserProcessor extends AbstractProcessor {
 
     private FieldSpec createAttrsFieldSpec(BaseAttrModel model) {
         String variableName = model.getAnnotatedElementName();
-        TypeName typeName = TypeNameUtils.INSTANCE.bestGuess(model.getAnnotatedElementClass());
+        TypeName typeName = CommonEx.bestGuess(model.getAnnotatedElementClass());
 
         FieldSpec.Builder builder = FieldSpec.builder(typeName, variableName)
                 .addModifiers(Modifier.PRIVATE, Modifier.STATIC);
@@ -267,9 +169,8 @@ public class AttributeParserProcessor extends AbstractProcessor {
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC);
 
         StringBuilder variablesBuilder = new StringBuilder();
-        int maxinum = 0;
-        for (int i = 0; i < models.size(); i++) {
-            BaseAttrModel model = models.get(i);
+        int maximum = 0;
+        for (BaseAttrModel model : models) {
             String variableName = model.getAnnotatedElementName();
             String className = model.getAnnotatedElementClass();
             String line = "\"\\n" + className + " " + variableName + " = \" + " + variableName + " +  \n";
@@ -277,12 +178,12 @@ public class AttributeParserProcessor extends AbstractProcessor {
             variablesBuilder.append(line);
 
             int count = line.length();
-            maxinum = Math.max(maxinum, count);
+            maximum = Math.max(maximum, count);
         }
 
         StringBuilder stringBuilder = new StringBuilder();
-        String lastLine = StringUtils.INSTANCE.multiply("=", maxinum);
-        String firstLine = StringUtils.INSTANCE.multiply("=", (maxinum - customViewHolder.getClassName().length() - 2) / 2);
+        String lastLine = CommonEx.multiply("=", maximum);
+        String firstLine = CommonEx.multiply("=", (maximum - customViewHolder.getClassName().length() - 2) / 2);
         String firstLineMessage = String.format("\"%s %s %s\" + \n", firstLine, customViewHolder.getClassName(), firstLine);
 
         stringBuilder.append(firstLineMessage);
@@ -338,26 +239,7 @@ public class AttributeParserProcessor extends AbstractProcessor {
                 .addCode(Constants.STATEMENT_BINDATTRIBUTES);
 
         for (BaseAttrModel model : models) {
-            String className = customViewHolder.getClassName();
-            if (model instanceof AttrIntModel) {
-                builder.addCode(AttrModelUtils.INSTANCE.createIntCode((AttrIntModel) model, className));
-            } else if (model instanceof AttrStringModel) {
-                builder.addCode(AttrModelUtils.INSTANCE.createStringCode((AttrStringModel) model, className));
-            } else if (model instanceof AttrBooleanModel) {
-                builder.addCode(AttrModelUtils.INSTANCE.createBooleanCode((AttrBooleanModel) model, className));
-            } else if (model instanceof AttrColorModel) {
-                builder.addCode(AttrModelUtils.INSTANCE.createColorCode((AttrColorModel) model, className));
-            } else if (model instanceof AttrDimensionModel) {
-                builder.addCode(AttrModelUtils.INSTANCE.createDimensionCode((AttrDimensionModel) model, className));
-            } else if (model instanceof AttrDimensionPixelSizeModel) {
-                builder.addCode(AttrModelUtils.INSTANCE.createDimensionPixelCode((AttrDimensionPixelSizeModel) model, className));
-            } else if (model instanceof AttrDrawableModel) {
-                builder.addCode(AttrModelUtils.INSTANCE.createDrawableCode((AttrDrawableModel) model, className));
-            } else if (model instanceof AttrFloatModel) {
-                builder.addCode(AttrModelUtils.INSTANCE.createFloatCode((AttrFloatModel) model, className));
-            } else if (model instanceof AttrResourceModel) {
-                builder.addCode(AttrModelUtils.INSTANCE.createResourceCode((AttrResourceModel) model, className));
-            }
+            AttrModelUtils.addCode(builder, model, customViewHolder.getClassName());
         }
 
         builder.addCode(Constants.STATEMENT_RECYCLE);
