@@ -12,17 +12,9 @@ import javax.lang.model.element.VariableElement
  * Description:
  */
 
-class AttrColorModel(element: VariableElement) : BaseAttrModel(element) {
-    val source: String
-    val defValue: Int
-
+class AttrColorModel(element: VariableElement) : BaseAttrModel<AttrColor>(element, AttrColor::class.java) {
     init {
-
-        val annotation = element.getAnnotation(AttrColor::class.java)
-
         source = annotation.value
         defValue = annotation.def
-
-        findEnclosingClass()
     }
 }

@@ -24,7 +24,7 @@ val attrResourcePair = AttrResource::class.java to AttrResourceModel::class.java
 /**
  * parse annotation list for finding usages within [RoundEnvironment]
  */
-fun <T : BaseAttrModel, A : Annotation> parseModelIntoMap(env: RoundEnvironment, map: MutableMap<String, List<T>>, pair: Pair<Class<A>, Class<T>>) {
+fun <T : BaseAttrModel<*>, A : Annotation> parseModelIntoMap(env: RoundEnvironment, map: MutableMap<String, List<T>>, pair: Pair<Class<A>, Class<T>>) {
     env.getElementsAnnotatedWith(pair.first)
             .map { pair.second.getConstructor(Class.forName(VariableElement::class.java.name)).newInstance(it as VariableElement) }
             .filter { it.isValid }
@@ -34,7 +34,7 @@ fun <T : BaseAttrModel, A : Annotation> parseModelIntoMap(env: RoundEnvironment,
 /**
  * adding code statement into [MethodSpec.Builder] using [BaseAttrModel]
  */
-fun MethodSpec.Builder.addCode(model: BaseAttrModel, className: String) {
+fun MethodSpec.Builder.addCode(model: BaseAttrModel<*>, className: String) {
     when (model) {
         is AttrIntModel -> this.addCode(createIntCode(model, className))
         is AttrStringModel -> this.addCode(createStringCode(model, className))
@@ -51,10 +51,9 @@ fun MethodSpec.Builder.addCode(model: BaseAttrModel, className: String) {
 /**
  * getting [BaseAttrModel] list for generate fields
  */
-fun <T : BaseAttrModel> getModelList(className: String, vararg targetMaps: Map<String, List<T>>) = targetMaps.map { getTargetList(it, className) }.flatMap { it }
+fun <T : BaseAttrModel<*>> getModelList(className: String, vararg targetMaps: Map<String, List<T>>) = targetMaps.map { getTargetList(it, className) }.flatMap { it }
 
-
-private fun <T : BaseAttrModel> getTargetList(map: Map<String, List<T>>, className: String): List<T> {
+private fun <T : BaseAttrModel<*>> getTargetList(map: Map<String, List<T>>, className: String): List<T> {
     var models: List<T> = ArrayList()
 
     for ((key, value) in map) {
@@ -67,7 +66,7 @@ private fun <T : BaseAttrModel> getTargetList(map: Map<String, List<T>>, classNa
     return models
 }
 
-private fun <T : BaseAttrModel> updateAttrMapList(map: MutableMap<String, List<T>>, model: T) {
+private fun <T : BaseAttrModel<*>> updateAttrMapList(map: MutableMap<String, List<T>>, model: T) {
     var elementsClasses = map[model.enclosingClass]?.toMutableList()
     if (elementsClasses == null || elementsClasses.isEmpty()) {
         elementsClasses = ArrayList()
@@ -77,75 +76,44 @@ private fun <T : BaseAttrModel> updateAttrMapList(map: MutableMap<String, List<T
     map[model.enclosingClass] = elementsClasses
 }
 
-private fun createIntCode(model: AttrIntModel, className: String): String {
-    val variableName = model.annotatedElementName
-    val source = reviseSource(className, variableName, model.source)
-    val defValue = model.defValue
+private fun createIntCode(model: AttrIntModel, className: String) =
+        createCode(model, "%s = array.getInt(%s, %s);\n", className, model.defValue as Int)
 
-    return String.format("%s = array.getInt(%s, %s);\n", variableName, source, defValue)
-}
+private fun createBooleanCode(model: AttrBooleanModel, className: String) =
+        createCode(model, "%s = array.getBoolean(%s, %s);\n", className, model.defValue as Boolean)
 
-private fun createBooleanCode(model: AttrBooleanModel, className: String): String {
-    val variableName = model.annotatedElementName
-    val source = reviseSource(className, variableName, model.source)
-    val defValue = model.defValue
+private fun createColorCode(model: AttrColorModel, className: String) =
+        createCode(model, "%s = array.getColor(%s, %s);\n", className, model.defValue as Int)
 
-    return String.format("%s = array.getBoolean(%s, %s);\n", variableName, source, defValue)
-}
+private fun createDimensionCode(model: AttrDimensionModel, className: String) =
+        createCode(model, "%s = array.getDimension(%s, %sf);\n", className, model.defValue as Float)
 
-private fun createColorCode(model: AttrColorModel, className: String): String {
-    val variableName = model.annotatedElementName
-    val source = reviseSource(className, variableName, model.source)
-    val defValue = model.defValue
+private fun createDimensionPixelCode(model: AttrDimensionPixelSizeModel, className: String) =
+        createCode(model, "%s = array.getDimensionPixelSize(%s, %s);\n", className, model.defValue as Int)
 
-    return String.format("%s = array.getColor(%s, %s);\n", variableName, source, defValue)
-}
+private fun createDrawableCode(model: AttrDrawableModel, className: String) =
+        createCode(model, "%s = array.getDrawable(%s);\n", className)
 
-private fun createDimensionCode(model: AttrDimensionModel, className: String): String {
-    val variableName = model.annotatedElementName
-    val source = reviseSource(className, variableName, model.source)
-    val defValue = model.defValue
+private fun createFloatCode(model: AttrFloatModel, className: String) =
+        createCode(model, "%s = array.getFloat(%s, %sf);\n", className, model.defValue as Float)
 
-    return String.format("%s = array.getDimension(%s, %sf);\n", variableName, source, defValue)
-}
+private fun createResourceCode(model: AttrResourceModel, className: String) =
+        createCode(model, "%s = array.getResourceId(%s, %s);\n", className, model.defValue as Int)
 
-private fun createDimensionPixelCode(model: AttrDimensionPixelSizeModel, className: String): String {
-    val variableName = model.annotatedElementName
-    val source = reviseSource(className, variableName, model.source)
-    val defValue = model.defValue
+private fun createStringCode(model: AttrStringModel, className: String) =
+        createCode(model, "%s = array.getString(%s);\n", className)
 
-    return String.format("%s = array.getDimensionPixelSize(%s, %s);\n", variableName, source, defValue)
-}
-
-private fun createDrawableCode(model: AttrDrawableModel, className: String): String {
+private fun createCode(model: BaseAttrModel<*>, format: String, className: String, defValue: Any? = null): String {
     val variableName = model.annotatedElementName
     val source = reviseSource(className, variableName, model.source)
 
-    return String.format("%s = array.getDrawable(%s);\n", variableName, source)
+    return if (defValue != null) {
+        format.format(variableName, source, defValue)
+    } else {
+        format.format(variableName, source)
+    }
 }
 
-private fun createFloatCode(model: AttrFloatModel, className: String): String {
-    val variableName = model.annotatedElementName
-    val source = reviseSource(className, variableName, model.source)
-    val defValue = model.defValue
-
-    return String.format("%s = array.getFloat(%s, %sf);\n", variableName, source, defValue)
-}
-
-private fun createResourceCode(model: AttrResourceModel, className: String): String {
-    val variableName = model.annotatedElementName
-    val source = reviseSource(className, variableName, model.source)
-    val defValue = model.defValue
-
-    return String.format("%s = array.getResourceId(%s, %s);\n", variableName, source, defValue)
-}
-
-private fun createStringCode(model: AttrStringModel, className: String): String {
-    val variableName = model.annotatedElementName
-    val source = reviseSource(className, variableName, model.source)
-
-    return String.format("%s = array.getString(%s);\n", variableName, source)
-}
 
 private fun reviseSource(className: String, variableName: String, source: String): String? {
     var newSource: String? = source

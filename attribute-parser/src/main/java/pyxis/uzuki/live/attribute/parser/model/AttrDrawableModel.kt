@@ -12,17 +12,8 @@ import javax.lang.model.element.VariableElement
  * Description:
  */
 
-class AttrDrawableModel(element: VariableElement) : BaseAttrModel(element) {
-    val source: String
-    val defValue: Int
-
+class AttrDrawableModel(element: VariableElement) : BaseAttrModel<AttrDrawable>(element, AttrDrawable::class.java) {
     init {
-
-        val annotation = element.getAnnotation(AttrDrawable::class.java)
-
         source = annotation.value
-        defValue = annotation.def
-
-        findEnclosingClass()
     }
 }

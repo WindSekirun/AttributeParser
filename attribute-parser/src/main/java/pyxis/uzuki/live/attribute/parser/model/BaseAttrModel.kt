@@ -11,7 +11,15 @@ import javax.lang.model.element.*
  * Description:
  */
 
-open class BaseAttrModel(protected var mElement: VariableElement) {
+open class BaseAttrModel<T : Annotation>(protected var mElement: VariableElement, val mCls: Class<T>) {
+    var source: String = ""
+    var annotation: T = mElement.getAnnotation(mCls)
+    var defValue: Any = ""
+
+    init {
+        findEnclosingClass()
+    }
+
     var enclosingClass: String = ""
         protected set
 

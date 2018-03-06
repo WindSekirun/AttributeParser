@@ -1,8 +1,7 @@
 package pyxis.uzuki.live.attribute.parser.model
 
-import javax.lang.model.element.VariableElement
-
 import pyxis.uzuki.live.attribute.parser.annotation.AttrBoolean
+import javax.lang.model.element.VariableElement
 
 /**
  * AttributesParser
@@ -13,17 +12,9 @@ import pyxis.uzuki.live.attribute.parser.annotation.AttrBoolean
  * Description:
  */
 
-class AttrBooleanModel(element: VariableElement) : BaseAttrModel(element) {
-    val source: String
-    val defValue: Boolean
-
+class AttrBooleanModel(element: VariableElement) : BaseAttrModel<AttrBoolean>(element, AttrBoolean::class.java) {
     init {
-
-        val annotation = element.getAnnotation(AttrBoolean::class.java)
-
         source = annotation.value
         defValue = annotation.def
-
-        findEnclosingClass()
     }
 }

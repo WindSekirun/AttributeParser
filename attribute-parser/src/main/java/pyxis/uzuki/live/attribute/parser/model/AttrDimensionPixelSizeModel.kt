@@ -12,17 +12,9 @@ import javax.lang.model.element.VariableElement
  * Description:
  */
 
-class AttrDimensionPixelSizeModel(element: VariableElement) : BaseAttrModel(element) {
-    val source: String
-    val defValue: Int
-
+class AttrDimensionPixelSizeModel(element: VariableElement) : BaseAttrModel<AttrDimensionPixelSize>(element, AttrDimensionPixelSize::class.java) {
     init {
-
-        val annotation = element.getAnnotation(AttrDimensionPixelSize::class.java)
-
         source = annotation.value
         defValue = annotation.def
-
-        findEnclosingClass()
     }
 }

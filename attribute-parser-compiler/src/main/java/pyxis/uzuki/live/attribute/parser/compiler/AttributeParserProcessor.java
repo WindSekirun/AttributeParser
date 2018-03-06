@@ -84,7 +84,9 @@ public class AttributeParserProcessor extends AbstractProcessor {
     @Override
     public boolean process(Set<? extends TypeElement> set, RoundEnvironment roundEnvironment) {
         processAnnotation(roundEnvironment);
-        writeFile();
+        for (CustomViewHolder customViewHolder : mCustomViewHolderMap.values()) {
+            writeAttributes(customViewHolder);
+        }
         return true;
     }
 
@@ -106,24 +108,6 @@ public class AttributeParserProcessor extends AbstractProcessor {
         parseModelIntoMap(env, mAttrResourceMap, AttrModelUtils.getAttrResourcePair());
     }
 
-
-    private void writeFile() {
-        for (CustomViewHolder customViewHolder : mCustomViewHolderMap.values()) {
-            writeAttributes(customViewHolder);
-        }
-    }
-
-    private void writeClass(TypeSpec typeSpec) {
-        JavaFile javaFile = JavaFile.builder(Constants.PACKAGE_NAME, typeSpec).build();
-
-        try {
-            javaFile.writeTo(System.out);
-            javaFile.writeTo(mFiler);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     private void writeAttributes(CustomViewHolder customViewHolder) {
         TypeSpec.Builder builder = TypeSpec.classBuilder(customViewHolder.getClassName() + Constants.ATTRIBUTES)
                 .addModifiers(Modifier.PUBLIC);
@@ -142,7 +126,14 @@ public class AttributeParserProcessor extends AbstractProcessor {
         builder.addMethod(createPrintVariableMethodSpec(customViewHolder, models));
         builder.addMethod(createBindAttributesMethodSpec(customViewHolder, models));
 
-        writeClass(builder.build());
+        JavaFile javaFile = JavaFile.builder(Constants.PACKAGE_NAME, builder.build()).build();
+
+        try {
+            javaFile.writeTo(System.out);
+            javaFile.writeTo(mFiler);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private FieldSpec createRFieldSpec(CustomViewHolder customViewHolder) {

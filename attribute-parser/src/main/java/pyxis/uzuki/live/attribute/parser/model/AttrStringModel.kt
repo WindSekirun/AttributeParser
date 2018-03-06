@@ -12,15 +12,8 @@ import javax.lang.model.element.VariableElement
  * Description:
  */
 
-class AttrStringModel(element: VariableElement) : BaseAttrModel(element) {
-    val source: String
-
+class AttrStringModel(element: VariableElement) : BaseAttrModel<AttrString>(element, AttrString::class.java) {
     init {
-
-        val annotation = element.getAnnotation(AttrString::class.java)
-
         source = annotation.value
-
-        findEnclosingClass()
     }
 }

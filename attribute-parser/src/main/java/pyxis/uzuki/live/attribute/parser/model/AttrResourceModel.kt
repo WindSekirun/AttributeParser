@@ -12,17 +12,9 @@ import javax.lang.model.element.VariableElement
  * Description:
  */
 
-class AttrResourceModel(element: VariableElement) : BaseAttrModel(element) {
-    val source: String
-    val defValue: Int
-
+class AttrResourceModel(element: VariableElement) : BaseAttrModel<AttrResource>(element, AttrResource::class.java) {
     init {
-
-        val annotation = element.getAnnotation(AttrResource::class.java)
-
         source = annotation.value
         defValue = annotation.def
-
-        findEnclosingClass()
     }
 }
