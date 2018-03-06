@@ -5,10 +5,10 @@ targetCompatibility = JavaVersion.VERSION_1_8
 sourceCompatibility = JavaVersion.VERSION_1_8
 
 dependencies {
-    compile 'com.squareup:javapoet:1.9.0'
     compile 'com.google.auto.service:auto-service:1.0-rc3'
 
     compile project(':attribute-parser')
+
 }
 
 ext {
@@ -38,3 +38,14 @@ ext {
 
 apply from: rootProject.file('gradle/install-v1.gradle')
 apply from: rootProject.file('gradle/bintray-java-v1.gradle')
+
+compileKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
+compileTestKotlin {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}

@@ -37,17 +37,17 @@ import pyxis.uzuki.live.attribute.parser.annotation.AttrInt;
 import pyxis.uzuki.live.attribute.parser.annotation.AttrResource;
 import pyxis.uzuki.live.attribute.parser.annotation.AttrString;
 import pyxis.uzuki.live.attribute.parser.annotation.CustomView;
-import pyxis.uzuki.live.attribute.parser.compiler.holder.CustomViewHolder;
-import pyxis.uzuki.live.attribute.parser.compiler.model.AttrBooleanModel;
-import pyxis.uzuki.live.attribute.parser.compiler.model.AttrColorModel;
-import pyxis.uzuki.live.attribute.parser.compiler.model.AttrDimensionModel;
-import pyxis.uzuki.live.attribute.parser.compiler.model.AttrDimensionPixelSizeModel;
-import pyxis.uzuki.live.attribute.parser.compiler.model.AttrDrawableModel;
-import pyxis.uzuki.live.attribute.parser.compiler.model.AttrFloatModel;
-import pyxis.uzuki.live.attribute.parser.compiler.model.AttrIntModel;
-import pyxis.uzuki.live.attribute.parser.compiler.model.AttrResourceModel;
-import pyxis.uzuki.live.attribute.parser.compiler.model.AttrStringModel;
-import pyxis.uzuki.live.attribute.parser.compiler.model.BaseAttrModel;
+import pyxis.uzuki.live.attribute.parser.model.AttrBooleanModel;
+import pyxis.uzuki.live.attribute.parser.model.AttrColorModel;
+import pyxis.uzuki.live.attribute.parser.model.AttrDimensionModel;
+import pyxis.uzuki.live.attribute.parser.model.AttrDimensionPixelSizeModel;
+import pyxis.uzuki.live.attribute.parser.model.AttrDrawableModel;
+import pyxis.uzuki.live.attribute.parser.model.AttrFloatModel;
+import pyxis.uzuki.live.attribute.parser.model.AttrIntModel;
+import pyxis.uzuki.live.attribute.parser.model.AttrResourceModel;
+import pyxis.uzuki.live.attribute.parser.model.AttrStringModel;
+import pyxis.uzuki.live.attribute.parser.model.BaseAttrModel;
+import pyxis.uzuki.live.attribute.parser.model.CustomViewHolder;
 import pyxis.uzuki.live.attribute.parser.compiler.utils.AttrModelUtils;
 import pyxis.uzuki.live.attribute.parser.compiler.utils.StringUtils;
 import pyxis.uzuki.live.attribute.parser.compiler.utils.TypeNameUtils;
@@ -198,10 +198,10 @@ public class AttributeParserProcessor extends AbstractProcessor {
     }
 
     private void writeAttributes(CustomViewHolder customViewHolder) {
-        TypeSpec.Builder builder = TypeSpec.classBuilder(customViewHolder.className + Constants.ATTRIBUTES)
+        TypeSpec.Builder builder = TypeSpec.classBuilder(customViewHolder.getClassName() + Constants.ATTRIBUTES)
                 .addModifiers(Modifier.PUBLIC);
 
-        List<BaseAttrModel> models = getTargetList(customViewHolder.className);
+        List<BaseAttrModel> models = getTargetList(customViewHolder.getClassName());
 
         for (BaseAttrModel model : models) {
             builder.addField(createAttrsFieldSpec(model));
@@ -244,7 +244,7 @@ public class AttributeParserProcessor extends AbstractProcessor {
     }
 
     private FieldSpec createRFieldSpec(CustomViewHolder customViewHolder) {
-        TypeName typeName = ClassName.bestGuess(customViewHolder.classNameComplete.packageName() + Constants.R_FILE);
+        TypeName typeName = ClassName.bestGuess(customViewHolder.getClassNameComplete().packageName() + Constants.R_FILE);
 
         FieldSpec.Builder builder = FieldSpec.builder(typeName, Constants.R_VARIABLE)
                 .addModifiers(Modifier.PRIVATE);
@@ -254,7 +254,7 @@ public class AttributeParserProcessor extends AbstractProcessor {
 
     private FieldSpec createAttrsFieldSpec(BaseAttrModel model) {
         String variableName = model.getAnnotatedElementName();
-        TypeName typeName = TypeNameUtils.bestGuess(model.getAnnotatedElementClass());
+        TypeName typeName = TypeNameUtils.INSTANCE.bestGuess(model.getAnnotatedElementClass());
 
         FieldSpec.Builder builder = FieldSpec.builder(typeName, variableName)
                 .addModifiers(Modifier.PRIVATE, Modifier.STATIC);
@@ -281,44 +281,44 @@ public class AttributeParserProcessor extends AbstractProcessor {
         }
 
         StringBuilder stringBuilder = new StringBuilder();
-        String lastLine = StringUtils.multiply("=", maxinum);
-        String firstLine = StringUtils.multiply("=", (maxinum - customViewHolder.className.length() - 2) / 2);
-        String firstLineMessage = String.format("\"%s %s %s\" + \n", firstLine, customViewHolder.className, firstLine);
+        String lastLine = StringUtils.INSTANCE.multiply("=", maxinum);
+        String firstLine = StringUtils.INSTANCE.multiply("=", (maxinum - customViewHolder.getClassName().length() - 2) / 2);
+        String firstLineMessage = String.format("\"%s %s %s\" + \n", firstLine, customViewHolder.getClassName(), firstLine);
 
         stringBuilder.append(firstLineMessage);
         stringBuilder.append(variablesBuilder.toString());
         stringBuilder.append(String.format("\"\\n%s\"", lastLine));
 
         String message = stringBuilder.toString();
-        builder.addCode(String.format(Constants.STATEMENT_LOG, customViewHolder.className, message));
+        builder.addCode(String.format(Constants.STATEMENT_LOG, customViewHolder.getClassName(), message));
 
         return builder.build();
     }
 
     private MethodSpec createObtainApplyMethodSpec(CustomViewHolder customViewHolder) {
-        TypeName classTypeName = customViewHolder.classNameComplete;
-        String classTypeParameterName = customViewHolder.className.substring(0, 1).toLowerCase() +
-                customViewHolder.className.substring(1);
+        TypeName classTypeName = customViewHolder.getClassNameComplete();
+        String classTypeParameterName = customViewHolder.getClassName().substring(0, 1).toLowerCase() +
+                customViewHolder.getClassName().substring(1);
 
         MethodSpec.Builder builder = MethodSpec.methodBuilder(Constants.OBTAIN_APPLY)
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                 .addParameter(classTypeName, classTypeParameterName)
-                .addParameter(Constants.ATTRIBUTE_SET_CLASS_NAME, Constants.SET)
+                .addParameter(Constants.INSTANCE.getATTRIBUTE_SET_CLASS_NAME(), Constants.SET)
                 .addCode(String.format(Constants.STATEMENT_OBTAIN_APPLY, classTypeParameterName,
-                        classTypeParameterName, customViewHolder.className));
+                        classTypeParameterName, customViewHolder.getClassName()));
 
         return builder.build();
     }
 
     private MethodSpec createApplyMethodSpec(CustomViewHolder customViewHolder, List<BaseAttrModel> models) {
-        TypeName classTypeName = customViewHolder.classNameComplete;
-        String classTypeParameterName = customViewHolder.className.substring(0, 1).toLowerCase() +
-                customViewHolder.className.substring(1);
+        TypeName classTypeName = customViewHolder.getClassNameComplete();
+        String classTypeParameterName = customViewHolder.getClassName().substring(0, 1).toLowerCase() +
+                customViewHolder.getClassName().substring(1);
 
         MethodSpec.Builder builder = MethodSpec.methodBuilder(Constants.APPLY)
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                 .addParameter(classTypeName, classTypeParameterName)
-                .addParameter(Constants.TYPED_ARRAY_CLASS_NAME, Constants.ARRAY)
+                .addParameter(Constants.INSTANCE.getTYPED_ARRAY_CLASS_NAME(), Constants.ARRAY)
                 .addCode(Constants.BIND_ATTRIBUTES_INVOKE);
 
         for (BaseAttrModel model : models) {
@@ -334,29 +334,29 @@ public class AttributeParserProcessor extends AbstractProcessor {
     private MethodSpec createBindAttributesMethodSpec(CustomViewHolder customViewHolder, List<BaseAttrModel> models) {
         MethodSpec.Builder builder = MethodSpec.methodBuilder(Constants.BIND_ATTRIBUTES)
                 .addModifiers(Modifier.PRIVATE, Modifier.STATIC)
-                .addParameter(Constants.TYPED_ARRAY_CLASS_NAME, Constants.ARRAY)
+                .addParameter(Constants.INSTANCE.getTYPED_ARRAY_CLASS_NAME(), Constants.ARRAY)
                 .addCode(Constants.STATEMENT_BINDATTRIBUTES);
 
         for (BaseAttrModel model : models) {
-            String className = customViewHolder.className;
+            String className = customViewHolder.getClassName();
             if (model instanceof AttrIntModel) {
-                builder.addCode(AttrModelUtils.createIntCode((AttrIntModel) model, className));
+                builder.addCode(AttrModelUtils.INSTANCE.createIntCode((AttrIntModel) model, className));
             } else if (model instanceof AttrStringModel) {
-                builder.addCode(AttrModelUtils.createStringCode((AttrStringModel) model, className));
+                builder.addCode(AttrModelUtils.INSTANCE.createStringCode((AttrStringModel) model, className));
             } else if (model instanceof AttrBooleanModel) {
-                builder.addCode(AttrModelUtils.createBooleanCode((AttrBooleanModel) model, className));
+                builder.addCode(AttrModelUtils.INSTANCE.createBooleanCode((AttrBooleanModel) model, className));
             } else if (model instanceof AttrColorModel) {
-                builder.addCode(AttrModelUtils.createColorCode((AttrColorModel) model, className));
+                builder.addCode(AttrModelUtils.INSTANCE.createColorCode((AttrColorModel) model, className));
             } else if (model instanceof AttrDimensionModel) {
-                builder.addCode(AttrModelUtils.createDimensionCode((AttrDimensionModel) model, className));
+                builder.addCode(AttrModelUtils.INSTANCE.createDimensionCode((AttrDimensionModel) model, className));
             } else if (model instanceof AttrDimensionPixelSizeModel) {
-                builder.addCode(AttrModelUtils.createDimensionPixelCode((AttrDimensionPixelSizeModel) model, className));
+                builder.addCode(AttrModelUtils.INSTANCE.createDimensionPixelCode((AttrDimensionPixelSizeModel) model, className));
             } else if (model instanceof AttrDrawableModel) {
-                builder.addCode(AttrModelUtils.createDrawableCode((AttrDrawableModel) model, className));
+                builder.addCode(AttrModelUtils.INSTANCE.createDrawableCode((AttrDrawableModel) model, className));
             } else if (model instanceof AttrFloatModel) {
-                builder.addCode(AttrModelUtils.createFloatCode((AttrFloatModel) model, className));
+                builder.addCode(AttrModelUtils.INSTANCE.createFloatCode((AttrFloatModel) model, className));
             } else if (model instanceof AttrResourceModel) {
-                builder.addCode(AttrModelUtils.createResourceCode((AttrResourceModel) model, className));
+                builder.addCode(AttrModelUtils.INSTANCE.createResourceCode((AttrResourceModel) model, className));
             }
         }
 

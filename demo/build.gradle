@@ -31,10 +31,8 @@ android {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
-
-//    implementation project(':attribute-parser')
-//    kapt project(':attribute-parser-compiler')
-
-    implementation 'com.github.windsekirun:attribute-parser:1.0.1'
-    kapt 'com.github.windsekirun:attribute-parser-compiler:1.0.1'
+    implementation project(':attribute-parser')
+    kapt project(':attribute-parser-compiler')
+//    implementation 'com.github.windsekirun:attribute-parser:1.0.1'
+//    kapt 'com.github.windsekirun:attribute-parser-compiler:1.0.1'
 }
