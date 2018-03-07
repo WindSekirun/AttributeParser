@@ -2,7 +2,8 @@ apply plugin: 'java'
 apply plugin: 'kotlin'
 
 dependencies {
-    compile 'com.squareup:javapoet:1.9.0'
+//    compile 'com.squareup:javapoet:1.9.0'
+    compile 'com.squareup:kotlinpoet:0.7.0'
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 }
 

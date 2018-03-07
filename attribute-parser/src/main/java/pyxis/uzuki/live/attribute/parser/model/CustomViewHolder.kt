@@ -1,6 +1,6 @@
 package pyxis.uzuki.live.attribute.parser.model
 
-import com.squareup.javapoet.ClassName
+import com.squareup.kotlinpoet.ClassName
 
 import javax.lang.model.element.Element
 

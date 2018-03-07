@@ -3,7 +3,7 @@
 
 package pyxis.uzuki.live.attribute.parser.utils
 
-import com.squareup.javapoet.MethodSpec
+import com.squareup.kotlinpoet.FunSpec
 import pyxis.uzuki.live.attribute.parser.annotation.*
 import pyxis.uzuki.live.attribute.parser.model.*
 import java.util.*
@@ -34,7 +34,7 @@ fun <T : BaseAttrModel<*>, A : Annotation> parseModelIntoMap(env: RoundEnvironme
 /**
  * adding code statement into [MethodSpec.Builder] using [BaseAttrModel]
  */
-fun MethodSpec.Builder.addCode(model: BaseAttrModel<*>, className: String) {
+fun FunSpec.Builder.addCode(model: BaseAttrModel<*>, className: String) {
     when (model) {
         is AttrIntModel -> this.addCode(createIntCode(model, className))
         is AttrStringModel -> this.addCode(createStringCode(model, className))

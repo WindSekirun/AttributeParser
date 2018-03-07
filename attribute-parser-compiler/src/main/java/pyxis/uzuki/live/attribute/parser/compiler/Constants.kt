@@ -1,7 +1,7 @@
 package pyxis.uzuki.live.attribute.parser.compiler
 
-import com.squareup.javapoet.ClassName
-import com.squareup.javapoet.TypeName
+import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.TypeName
 
 internal object Constants {
     const val PACKAGE_NAME = "pyxis.uzuki.live.attribute.parser"
