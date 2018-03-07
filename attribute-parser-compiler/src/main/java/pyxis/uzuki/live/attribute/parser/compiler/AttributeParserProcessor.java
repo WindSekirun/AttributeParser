@@ -25,8 +25,6 @@ import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
 
 import pyxis.uzuki.live.attribute.parser.annotation.CustomView;
-import pyxis.uzuki.live.attribute.parser.compiler.utils.AttrModelUtils;
-import pyxis.uzuki.live.attribute.parser.compiler.utils.CommonEx;
 import pyxis.uzuki.live.attribute.parser.model.AttrBooleanModel;
 import pyxis.uzuki.live.attribute.parser.model.AttrColorModel;
 import pyxis.uzuki.live.attribute.parser.model.AttrDimensionModel;
@@ -38,8 +36,10 @@ import pyxis.uzuki.live.attribute.parser.model.AttrResourceModel;
 import pyxis.uzuki.live.attribute.parser.model.AttrStringModel;
 import pyxis.uzuki.live.attribute.parser.model.BaseAttrModel;
 import pyxis.uzuki.live.attribute.parser.model.CustomViewHolder;
+import pyxis.uzuki.live.attribute.parser.utils.AttrModelUtils;
+import pyxis.uzuki.live.attribute.parser.utils.CommonEx;
 
-import static pyxis.uzuki.live.attribute.parser.compiler.utils.AttrModelUtils.parseModelIntoMap;
+import static pyxis.uzuki.live.attribute.parser.utils.AttrModelUtils.parseModelIntoMap;
 
 /**
  * AttributesParser

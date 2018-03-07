@@ -1,7 +1,7 @@
 @file:JvmName("AttrModelUtils")
 @file:JvmMultifileClass
 
-package pyxis.uzuki.live.attribute.parser.compiler.utils
+package pyxis.uzuki.live.attribute.parser.utils
 
 import com.squareup.javapoet.MethodSpec
 import pyxis.uzuki.live.attribute.parser.annotation.*

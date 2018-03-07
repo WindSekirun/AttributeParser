@@ -1,7 +1,7 @@
 @file:JvmName("CommonEx")
 @file:JvmMultifileClass
 
-package pyxis.uzuki.live.attribute.parser.compiler.utils
+package pyxis.uzuki.live.attribute.parser.utils
 
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.TypeName
