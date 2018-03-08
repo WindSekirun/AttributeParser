@@ -36,6 +36,7 @@ import pyxis.uzuki.live.attribute.parser.annotation.AttrFloat;
 import pyxis.uzuki.live.attribute.parser.annotation.AttrInt;
 import pyxis.uzuki.live.attribute.parser.annotation.AttrResource;
 import pyxis.uzuki.live.attribute.parser.annotation.AttrString;
+import pyxis.uzuki.live.attribute.parser.annotation.AttributeParser;
 import pyxis.uzuki.live.attribute.parser.annotation.CustomView;
 import pyxis.uzuki.live.attribute.parser.compiler.holder.CustomViewHolder;
 import pyxis.uzuki.live.attribute.parser.compiler.model.AttrBooleanModel;
@@ -69,7 +70,8 @@ import pyxis.uzuki.live.attribute.parser.compiler.utils.TypeNameUtils;
         "pyxis.uzuki.live.attribute.parser.annotation.AttrFloat",
         "pyxis.uzuki.live.attribute.parser.annotation.AttrResource",
         "pyxis.uzuki.live.attribute.parser.annotation.AttrString",
-        "pyxis.uzuki.live.attribute.parser.annotation.CustomView"
+        "pyxis.uzuki.live.attribute.parser.annotation.CustomView",
+        "pyxis.uzuki.live.attribute.parser.annotation.AttributeParser"
 })
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 @AutoService(javax.annotation.processing.Processor.class)
@@ -85,6 +87,7 @@ public class AttributeParserProcessor extends AbstractProcessor {
     private Map<String, List<AttrResourceModel>> mAttrResourceMap = new HashMap<>();
     private Map<String, List<AttrStringModel>> mAttrStringMap = new HashMap<>();
     private Filer mFiler;
+    private String mPackageName;
 
     @Override
     public synchronized void init(ProcessingEnvironment env) {
@@ -100,6 +103,11 @@ public class AttributeParserProcessor extends AbstractProcessor {
     }
 
     private void processAnnotation(RoundEnvironment env) {
+        for (Element element : env.getElementsAnnotatedWith(AttributeParser.class)) {
+            AttributeParser parser = element.getAnnotation(AttributeParser.class);
+            mPackageName = parser.value();
+        }
+
         for (Element element : env.getElementsAnnotatedWith(CustomView.class)) {
             ClassName classFullName = ClassName.get((TypeElement) element);
             String className = element.getSimpleName().toString();
@@ -244,7 +252,7 @@ public class AttributeParserProcessor extends AbstractProcessor {
     }
 
     private FieldSpec createRFieldSpec(CustomViewHolder customViewHolder) {
-        TypeName typeName = ClassName.bestGuess(customViewHolder.classNameComplete.packageName() + Constants.R_FILE);
+        TypeName typeName = ClassName.bestGuess(mPackageName + Constants.R_FILE);
 
         FieldSpec.Builder builder = FieldSpec.builder(typeName, Constants.R_VARIABLE)
                 .addModifiers(Modifier.PRIVATE);

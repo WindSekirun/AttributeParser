@@ -67,7 +67,7 @@ after using ```StyleViewAttribute.apply(this, attributeSet)```, you can use ```S
 
 #### XML (activity_main.xml)
 ```XML
-<pyxis.uzuki.live.attribute.parser.demo.StyleView
+<pyxis.uzuki.live.attribute.parser.demo.widget.StyleView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:booleanTest="true"

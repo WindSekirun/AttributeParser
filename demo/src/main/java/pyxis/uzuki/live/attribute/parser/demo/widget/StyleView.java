@@ -1,4 +1,4 @@
-package pyxis.uzuki.live.attribute.parser.demo;
+package pyxis.uzuki.live.attribute.parser.demo.widget;
 
 import android.content.Context;
 import android.util.AttributeSet;
