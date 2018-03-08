@@ -16,22 +16,23 @@ Written in Java and Kotlin, both language are fully supported!
 ```
 dependencies {
     // AttributeParser
-    implementation 'com.github.windsekirun:attribute-parser:1.0.1'
-    annotationProcessor 'com.github.windsekirun:attribute-parser-compiler:1.0.1'
+    implementation 'com.github.windsekirun:attribute-parser:1.0.2'
+    annotationProcessor 'com.github.windsekirun:attribute-parser-compiler:1.0.2'
 
     // if your app using Kotlin?
-    kapt 'com.github.windsekirun:attribute-parser-compiler:1.0.1'
+    kapt 'com.github.windsekirun:attribute-parser-compiler:1.0.2'
 }
 ```
 
 
 ## Usages
-
-1. Declare ```@CustomView``` annotation into CustomView Class
-2. Attach ```@AttrInt```, ```@AttrColor``` annotation to field
-3. Clean - Build Project
-4. Done! Attribute class will generated at compile time.
-5. using ```StyleViewAttributes.apply(this, attributeSet)``` or ```StyleViewAttributes.apply(this, typedArray)``` for set variable from ```declare-styleable```
+1. Declare ```@AttributeParser("package name")``` annotation into any class. package name will be your package name.
+   * example, i wrote annotation into Application class, like ```@AttributeParser("com.github.windsekirun.abcd")```
+2. Declare ```@CustomView``` annotation into CustomView Class
+3. Attach ```@AttrInt```, ```@AttrColor``` annotation to field
+4. Clean - Build Project
+5. Done! Attribute class will generated at compile time.
+6. using ```StyleViewAttributes.apply(this, attributeSet)``` or ```StyleViewAttributes.apply(this, typedArray)``` for set variable from ```declare-styleable```
 
 ### Advance
 
