@@ -9,7 +9,6 @@ import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,23 +18,12 @@ import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.Filer;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
-import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.element.VariableElement;
 
-import pyxis.uzuki.live.attribute.parser.annotation.AttrBoolean;
-import pyxis.uzuki.live.attribute.parser.annotation.AttrColor;
-import pyxis.uzuki.live.attribute.parser.annotation.AttrDimension;
-import pyxis.uzuki.live.attribute.parser.annotation.AttrDimensionPixelSize;
-import pyxis.uzuki.live.attribute.parser.annotation.AttrDrawable;
-import pyxis.uzuki.live.attribute.parser.annotation.AttrFloat;
-import pyxis.uzuki.live.attribute.parser.annotation.AttrInt;
-import pyxis.uzuki.live.attribute.parser.annotation.AttrResource;
-import pyxis.uzuki.live.attribute.parser.annotation.AttrString;
 import pyxis.uzuki.live.attribute.parser.annotation.AttributeParser;
 import pyxis.uzuki.live.attribute.parser.annotation.CustomView;
 import pyxis.uzuki.live.attribute.parser.compiler.holder.CustomViewHolder;
@@ -49,9 +37,7 @@ import pyxis.uzuki.live.attribute.parser.compiler.model.AttrIntModel;
 import pyxis.uzuki.live.attribute.parser.compiler.model.AttrResourceModel;
 import pyxis.uzuki.live.attribute.parser.compiler.model.AttrStringModel;
 import pyxis.uzuki.live.attribute.parser.compiler.model.BaseAttrModel;
-import pyxis.uzuki.live.attribute.parser.compiler.utils.AttrModelUtils;
-import pyxis.uzuki.live.attribute.parser.compiler.utils.StringUtils;
-import pyxis.uzuki.live.attribute.parser.compiler.utils.TypeNameUtils;
+import pyxis.uzuki.live.attribute.parser.compiler.utils.Utils;
 
 /**
  * AttributesParser
@@ -60,19 +46,6 @@ import pyxis.uzuki.live.attribute.parser.compiler.utils.TypeNameUtils;
  * <p>
  * Description:
  */
-@SupportedAnnotationTypes({
-        "pyxis.uzuki.live.attribute.parser.annotation.AttrInt",
-        "pyxis.uzuki.live.attribute.parser.annotation.AttrBoolean",
-        "pyxis.uzuki.live.attribute.parser.annotation.AttrColor",
-        "pyxis.uzuki.live.attribute.parser.annotation.AttrDimension",
-        "pyxis.uzuki.live.attribute.parser.annotation.AttrDimensionPixelSize",
-        "pyxis.uzuki.live.attribute.parser.annotation.AttrDrawable",
-        "pyxis.uzuki.live.attribute.parser.annotation.AttrFloat",
-        "pyxis.uzuki.live.attribute.parser.annotation.AttrResource",
-        "pyxis.uzuki.live.attribute.parser.annotation.AttrString",
-        "pyxis.uzuki.live.attribute.parser.annotation.CustomView",
-        "pyxis.uzuki.live.attribute.parser.annotation.AttributeParser"
-})
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 @AutoService(javax.annotation.processing.Processor.class)
 public class AttributeParserProcessor extends AbstractProcessor {
@@ -102,6 +75,11 @@ public class AttributeParserProcessor extends AbstractProcessor {
         return true;
     }
 
+    @Override
+    public Set<String> getSupportedAnnotationTypes() {
+        return Utils.getSupportedAnnotationSet();
+    }
+
     private void processAnnotation(RoundEnvironment env) {
         for (Element element : env.getElementsAnnotatedWith(AttributeParser.class)) {
             AttributeParser parser = element.getAnnotation(AttributeParser.class);
@@ -114,78 +92,15 @@ public class AttributeParserProcessor extends AbstractProcessor {
             mCustomViewHolderMap.put(classFullName, new CustomViewHolder(element, classFullName, className));
         }
 
-        for (Element element : env.getElementsAnnotatedWith(AttrInt.class)) {
-            AttrIntModel model = new AttrIntModel((VariableElement) element);
-            if (!model.isValid()) continue;
-
-            updateAttrMapList(mAttrIntMap, model);
-        }
-
-        for (Element element : env.getElementsAnnotatedWith(AttrString.class)) {
-            AttrStringModel model = new AttrStringModel((VariableElement) element);
-            if (!model.isValid()) continue;
-
-            updateAttrMapList(mAttrStringMap, model);
-        }
-
-        for (Element element : env.getElementsAnnotatedWith(AttrBoolean.class)) {
-            AttrBooleanModel model = new AttrBooleanModel((VariableElement) element);
-            if (!model.isValid()) continue;
-
-            updateAttrMapList(mAttrBooleanMap, model);
-        }
-
-        for (Element element : env.getElementsAnnotatedWith(AttrColor.class)) {
-            AttrColorModel model = new AttrColorModel((VariableElement) element);
-            if (!model.isValid()) continue;
-
-            updateAttrMapList(mAttrColorMap, model);
-        }
-
-        for (Element element : env.getElementsAnnotatedWith(AttrDimension.class)) {
-            AttrDimensionModel model = new AttrDimensionModel((VariableElement) element);
-            if (!model.isValid()) continue;
-
-            updateAttrMapList(mAttrDimensionMap, model);
-        }
-
-        for (Element element : env.getElementsAnnotatedWith(AttrDimensionPixelSize.class)) {
-            AttrDimensionPixelSizeModel model = new AttrDimensionPixelSizeModel((VariableElement) element);
-            if (!model.isValid()) continue;
-
-            updateAttrMapList(mAttrDimensionPixelSizeMap, model);
-        }
-
-        for (Element element : env.getElementsAnnotatedWith(AttrDrawable.class)) {
-            AttrDrawableModel model = new AttrDrawableModel((VariableElement) element);
-            if (!model.isValid()) continue;
-
-            updateAttrMapList(mAttrDrawableMap, model);
-        }
-
-        for (Element element : env.getElementsAnnotatedWith(AttrFloat.class)) {
-            AttrFloatModel model = new AttrFloatModel((VariableElement) element);
-            if (!model.isValid()) continue;
-
-            updateAttrMapList(mAttrFloatMap, model);
-        }
-
-        for (Element element : env.getElementsAnnotatedWith(AttrResource.class)) {
-            AttrResourceModel model = new AttrResourceModel((VariableElement) element);
-            if (!model.isValid()) continue;
-
-            updateAttrMapList(mAttrResourceMap, model);
-        }
-    }
-
-    private <T extends BaseAttrModel> void updateAttrMapList(Map<String, List<T>> map, T model) {
-        List<T> elementsClasses = map.get(model.getEnclosingClass());
-        if (elementsClasses == null || elementsClasses.isEmpty()) {
-            elementsClasses = new ArrayList<>();
-        }
-
-        elementsClasses.add(model);
-        map.put(model.getEnclosingClass(), elementsClasses);
+        Utils.findAnnotatedWith(env, Utils.getAttrIntPair(), mAttrIntMap);
+        Utils.findAnnotatedWith(env, Utils.getAttrStringPair(), mAttrStringMap);
+        Utils.findAnnotatedWith(env, Utils.getAttrBooleanPair(), mAttrBooleanMap);
+        Utils.findAnnotatedWith(env, Utils.getAttrColorPair(), mAttrColorMap);
+        Utils.findAnnotatedWith(env, Utils.getAttrDimensionPair(), mAttrDimensionMap);
+        Utils.findAnnotatedWith(env, Utils.getAttrDimensionPixelSizePair(), mAttrDimensionPixelSizeMap);
+        Utils.findAnnotatedWith(env, Utils.getAttrDrawablePair(), mAttrDrawableMap);
+        Utils.findAnnotatedWith(env, Utils.getAttrFloatPair(), mAttrFloatMap);
+        Utils.findAnnotatedWith(env, Utils.getAttrResourcePair(), mAttrResourceMap);
     }
 
     private void writeFile() {
@@ -206,16 +121,18 @@ public class AttributeParserProcessor extends AbstractProcessor {
     }
 
     private void writeAttributes(CustomViewHolder customViewHolder) {
-        TypeSpec.Builder builder = TypeSpec.classBuilder(customViewHolder.className + Constants.ATTRIBUTES)
+        TypeSpec.Builder builder = TypeSpec.classBuilder(customViewHolder.getClassName() + Constants.ATTRIBUTES)
                 .addModifiers(Modifier.PUBLIC);
 
-        List<BaseAttrModel> models = getTargetList(customViewHolder.className);
+        List<BaseAttrModel> models = Utils.getModelList(customViewHolder.getClassName(), mAttrBooleanMap,
+                mAttrColorMap, mAttrDimensionMap, mAttrDrawableMap, mAttrIntMap, mAttrDimensionPixelSizeMap,
+                mAttrFloatMap, mAttrResourceMap, mAttrStringMap);
 
         for (BaseAttrModel model : models) {
             builder.addField(createAttrsFieldSpec(model));
         }
 
-        builder.addField(createRFieldSpec(customViewHolder));
+        builder.addField(createRFieldSpec());
         builder.addMethod(createObtainApplyMethodSpec(customViewHolder));
         builder.addMethod(createApplyMethodSpec(customViewHolder, models));
         builder.addMethod(createPrintVariableMethodSpec(customViewHolder, models));
@@ -224,34 +141,7 @@ public class AttributeParserProcessor extends AbstractProcessor {
         writeClass(builder.build());
     }
 
-    private List<BaseAttrModel> getTargetList(String className) {
-        List<BaseAttrModel> models = new ArrayList<>();
-        models.addAll(getTargetList(mAttrBooleanMap, className));
-        models.addAll(getTargetList(mAttrColorMap, className));
-        models.addAll(getTargetList(mAttrDimensionMap, className));
-        models.addAll(getTargetList(mAttrDrawableMap, className));
-        models.addAll(getTargetList(mAttrIntMap, className));
-        models.addAll(getTargetList(mAttrDimensionPixelSizeMap, className));
-        models.addAll(getTargetList(mAttrFloatMap, className));
-        models.addAll(getTargetList(mAttrResourceMap, className));
-        models.addAll(getTargetList(mAttrStringMap, className));
-        return models;
-    }
-
-    private <T extends BaseAttrModel> List<T> getTargetList(Map<String, List<T>> map, String className) {
-        List<T> models = new ArrayList<>();
-
-        for (Map.Entry<String, List<T>> entry : map.entrySet()) {
-            if (entry.getKey().contains(className)) {
-                models = entry.getValue();
-                break;
-            }
-        }
-
-        return models;
-    }
-
-    private FieldSpec createRFieldSpec(CustomViewHolder customViewHolder) {
+    private FieldSpec createRFieldSpec() {
         TypeName typeName = ClassName.bestGuess(mPackageName + Constants.R_FILE);
 
         FieldSpec.Builder builder = FieldSpec.builder(typeName, Constants.R_VARIABLE)
@@ -262,7 +152,7 @@ public class AttributeParserProcessor extends AbstractProcessor {
 
     private FieldSpec createAttrsFieldSpec(BaseAttrModel model) {
         String variableName = model.getAnnotatedElementName();
-        TypeName typeName = TypeNameUtils.bestGuess(model.getAnnotatedElementClass());
+        TypeName typeName = Utils.bestGuess(model.getAnnotatedElementClass());
 
         FieldSpec.Builder builder = FieldSpec.builder(typeName, variableName)
                 .addModifiers(Modifier.PRIVATE, Modifier.STATIC);
@@ -289,39 +179,39 @@ public class AttributeParserProcessor extends AbstractProcessor {
         }
 
         StringBuilder stringBuilder = new StringBuilder();
-        String lastLine = StringUtils.multiply("=", maxinum);
-        String firstLine = StringUtils.multiply("=", (maxinum - customViewHolder.className.length() - 2) / 2);
-        String firstLineMessage = String.format("\"%s %s %s\" + \n", firstLine, customViewHolder.className, firstLine);
+        String lastLine = Utils.multiply("=", maxinum);
+        String firstLine = Utils.multiply("=", (maxinum - customViewHolder.getClassName().length() - 2) / 2);
+        String firstLineMessage = String.format("\"%s %s %s\" + \n", firstLine, customViewHolder.getClassName(), firstLine);
 
         stringBuilder.append(firstLineMessage);
         stringBuilder.append(variablesBuilder.toString());
         stringBuilder.append(String.format("\"\\n%s\"", lastLine));
 
         String message = stringBuilder.toString();
-        builder.addCode(String.format(Constants.STATEMENT_LOG, customViewHolder.className, message));
+        builder.addCode(String.format(Constants.STATEMENT_LOG, customViewHolder.getClassName(), message));
 
         return builder.build();
     }
 
     private MethodSpec createObtainApplyMethodSpec(CustomViewHolder customViewHolder) {
-        TypeName classTypeName = customViewHolder.classNameComplete;
-        String classTypeParameterName = customViewHolder.className.substring(0, 1).toLowerCase() +
-                customViewHolder.className.substring(1);
+        TypeName classTypeName = customViewHolder.getClassNameComplete();
+        String classTypeParameterName = customViewHolder.getClassName().substring(0, 1).toLowerCase() +
+                customViewHolder.getClassName().substring(1);
 
-        MethodSpec.Builder builder = MethodSpec.methodBuilder(Constants.OBTAIN_APPLY)
+        MethodSpec.Builder builder = MethodSpec.methodBuilder(Constants.APPLY)
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                 .addParameter(classTypeName, classTypeParameterName)
                 .addParameter(Constants.ATTRIBUTE_SET_CLASS_NAME, Constants.SET)
                 .addCode(String.format(Constants.STATEMENT_OBTAIN_APPLY, classTypeParameterName,
-                        classTypeParameterName, customViewHolder.className));
+                        classTypeParameterName, customViewHolder.getClassName()));
 
         return builder.build();
     }
 
     private MethodSpec createApplyMethodSpec(CustomViewHolder customViewHolder, List<BaseAttrModel> models) {
-        TypeName classTypeName = customViewHolder.classNameComplete;
-        String classTypeParameterName = customViewHolder.className.substring(0, 1).toLowerCase() +
-                customViewHolder.className.substring(1);
+        TypeName classTypeName = customViewHolder.getClassNameComplete();
+        String classTypeParameterName = customViewHolder.getClassName().substring(0, 1).toLowerCase() +
+                customViewHolder.getClassName().substring(1);
 
         MethodSpec.Builder builder = MethodSpec.methodBuilder(Constants.APPLY)
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
@@ -346,26 +236,8 @@ public class AttributeParserProcessor extends AbstractProcessor {
                 .addCode(Constants.STATEMENT_BINDATTRIBUTES);
 
         for (BaseAttrModel model : models) {
-            String className = customViewHolder.className;
-            if (model instanceof AttrIntModel) {
-                builder.addCode(AttrModelUtils.createIntCode((AttrIntModel) model, className));
-            } else if (model instanceof AttrStringModel) {
-                builder.addCode(AttrModelUtils.createStringCode((AttrStringModel) model, className));
-            } else if (model instanceof AttrBooleanModel) {
-                builder.addCode(AttrModelUtils.createBooleanCode((AttrBooleanModel) model, className));
-            } else if (model instanceof AttrColorModel) {
-                builder.addCode(AttrModelUtils.createColorCode((AttrColorModel) model, className));
-            } else if (model instanceof AttrDimensionModel) {
-                builder.addCode(AttrModelUtils.createDimensionCode((AttrDimensionModel) model, className));
-            } else if (model instanceof AttrDimensionPixelSizeModel) {
-                builder.addCode(AttrModelUtils.createDimensionPixelCode((AttrDimensionPixelSizeModel) model, className));
-            } else if (model instanceof AttrDrawableModel) {
-                builder.addCode(AttrModelUtils.createDrawableCode((AttrDrawableModel) model, className));
-            } else if (model instanceof AttrFloatModel) {
-                builder.addCode(AttrModelUtils.createFloatCode((AttrFloatModel) model, className));
-            } else if (model instanceof AttrResourceModel) {
-                builder.addCode(AttrModelUtils.createResourceCode((AttrResourceModel) model, className));
-            }
+            String className = customViewHolder.getClassName();
+            Utils.addCode(builder, model, className);
         }
 
         builder.addCode(Constants.STATEMENT_RECYCLE);
