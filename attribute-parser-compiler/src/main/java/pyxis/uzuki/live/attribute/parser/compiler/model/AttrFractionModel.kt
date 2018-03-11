@@ -1,9 +1,7 @@
 package pyxis.uzuki.live.attribute.parser.compiler.model
 
-import javax.lang.model.element.VariableElement
-
-import pyxis.uzuki.live.attribute.parser.annotation.AttrFloat
 import pyxis.uzuki.live.attribute.parser.annotation.AttrFraction
+import javax.lang.model.element.VariableElement
 
 /**
  * AttributesParser
@@ -17,10 +15,12 @@ import pyxis.uzuki.live.attribute.parser.annotation.AttrFraction
 class AttrFractionModel(element: VariableElement) : BaseAttrModel(element) {
     var base: Int = 0
     var pbase: Int = 0
+
     init {
         val annotation = element.getAnnotation<AttrFraction>(AttrFraction::class.java)
         source = annotation.value
         base = annotation.base
         pbase = annotation.pbase
+        findDefaultValue(0)
     }
 }

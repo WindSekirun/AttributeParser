@@ -16,5 +16,6 @@ class AttrColorModel(element: VariableElement) : BaseAttrModel(element) {
     init {
         val annotation = element.getAnnotation<AttrColor>(AttrColor::class.java)
         source = annotation.value
+        findDefaultValue(0)
     }
 }

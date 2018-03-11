@@ -16,5 +16,6 @@ class AttrIntegerModel(element: VariableElement) : BaseAttrModel(element) {
     init {
         val annotation = element.getAnnotation<AttrInteger>(AttrInteger::class.java)
         source = annotation.value
+        findDefaultValue(0)
     }
 }

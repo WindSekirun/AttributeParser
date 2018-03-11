@@ -4,7 +4,7 @@
 
 **Inject automatically your Attribute of CustomView, just with simple annotation**
 
-generate own class to handle attributes using Annotation Processor.
+generate own class to handle attributes using Annotation Processor, setting value by reflection.
 
 Written in Java and Kotlin, both language are fully supported!
 
@@ -16,11 +16,11 @@ Written in Java and Kotlin, both language are fully supported!
 ```
 dependencies {
     // AttributeParser
-    implementation 'com.github.windsekirun:attribute-parser:1.0.2'
-    annotationProcessor 'com.github.windsekirun:attribute-parser-compiler:1.0.2'
+    implementation 'com.github.windsekirun:attribute-parser:1.1.0'
+    annotationProcessor 'com.github.windsekirun:attribute-parser-compiler:1.1.0'
 
     // if your app using Kotlin?
-    kapt 'com.github.windsekirun:attribute-parser-compiler:1.0.2'
+    kapt 'com.github.windsekirun:attribute-parser-compiler:1.1.0'
 }
 ```
 
@@ -36,15 +36,36 @@ dependencies {
 
 ### Advance
 
-#### Index, Default Value
+#### Index
 
 AttributeParser will generate index automatically, but sometimes you will need custom index to implement CustomView.
 
-Just adding parameter ```value``` and ```def``` to ```@AttrInt```, ```@AttrBoolean```
+Just adding parameter ```value``` to ```@AttrInt```, ```@AttrBoolean```
 
 ```Java
 public @AttrInt("StyleView_intTest") int intTest;
-public @AttrBoolean(value = "StyleView_booleanTest", def = true) boolean booleanTest;
+```
+
+### Default Value
+
+*from 1.1.0, declaring default value has changed*
+
+Just add 'final' modifier into field, and initialize value.
+
+```Java
+    @AttrInt public final int intTest = 10;
+    @AttrBoolean public final boolean booleanTest = false;
+    @AttrColor public final int colorTest = android.R.color.darker_gray;
+    @AttrDimension public final float dimensionTest = android.R.dimen.thumbnail_width;
+    @AttrFloat public final float floatTest = 10;
+    @AttrReference public final int resourceTest = android.R.drawable.arrow_down_float;
+    @AttrString public final String stringTest = "ABC";
+```
+
+* before 1.1.0 *
+
+```Java
+public @AttrInt(value = "StyleView_intTest", def = 0) int intTest;
 ```
 
 #### Logging Variables
@@ -55,15 +76,24 @@ after using ```StyleViewAttribute.apply(this, attributeSet)```, you can use ```S
 
 #### XML (attrs.xml)
 ```XML
-<declare-styleable name="StyleView">
+ <declare-styleable name="StyleView">
         <attr name="stringTest" format="string" />
         <attr name="intTest" format="integer" />
         <attr name="booleanTest" format="boolean" />
         <attr name="colorTest" format="color" />
         <attr name="dimensionTest" format="dimension" />
+        <attr name="flagTest">
+            <flag name="none" value="0" />
+            <flag name="top" value="1" />
+            <flag name="right" value="2" />
+            <flag name="bottom" value="4" />
+            <flag name="left" value="8" />
+            <flag name="all" value="15" />
+        </attr>
         <attr name="floatTest" format="float" />
         <attr name="resourceTest" format="reference" />
-</declare-styleable>
+        <attr name="fractionTest" format="fraction" />
+    </declare-styleable>
 ```
 
 #### XML (activity_main.xml)
@@ -85,13 +115,13 @@ after using ```StyleViewAttribute.apply(this, attributeSet)```, you can use ```S
 ```Java
 @CustomView
 public class StyleView extends LinearLayout {
-    public @AttrInt int intTest;
-    public @AttrBoolean boolean booleanTest;
-    public @AttrColor int colorTest;
-    public @AttrDimension float dimensionTest;
-    public @AttrFloat float floatTest;
-    public @AttrResource int resourceTest;
-    public @AttrString String stringTest;
+     @AttrInt public int intTest;
+     @AttrBoolean public boolean booleanTest;
+     @AttrColor public int colorTest;
+     @AttrDimension public float dimensionTest;
+     @AttrFloat public float floatTest;
+     @AttrReference public int resourceTest;
+     @AttrString public String stringTest;
 
     public StyleView(Context context) {
         super(context);

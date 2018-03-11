@@ -24,13 +24,13 @@ import pyxis.uzuki.live.attribute.parser.annotation.CustomView;
 
 @CustomView
 public class StyleView extends LinearLayout {
-    @AttrInt public final int intTest = 10;
-    @AttrBoolean public final boolean booleanTest = false;
-    @AttrColor public final int colorTest = android.R.color.darker_gray;
-    @AttrDimension public final float dimensionTest = android.R.dimen.thumbnail_width;
-    @AttrFloat public final float floatTest = 10;
-    @AttrReference public final int resourceTest = android.R.drawable.arrow_down_float;
-    @AttrString public final String stringTest = "ABC";
+    @AttrInt public int intTest;
+    @AttrBoolean public boolean booleanTest;
+    @AttrColor public int colorTest;
+    @AttrDimension public float dimensionTest;
+    @AttrFloat public float floatTest;
+    @AttrReference public int resourceTest;
+    @AttrString public String stringTest;
 
     public StyleView(Context context) {
         super(context);

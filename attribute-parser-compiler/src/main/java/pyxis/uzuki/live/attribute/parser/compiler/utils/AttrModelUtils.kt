@@ -146,6 +146,6 @@ private fun createIntegerCode(model: AttrIntegerModel, className: String) =
 private fun createFractionCode(model: AttrFractionModel, className: String): String {
     val variableName = model.annotatedElementName
     val source = reviseSource(className, variableName, model.source)
-    return "%s = array.getFraction(%s, %s, %s, %s);\n".format(variableName, source, model.base, model.pbase,
+    return "%s = array.getFraction(%s, %s, %s, %sf);\n".format(variableName, source, model.base, model.pbase,
             model.annotatedElementConstantName)
 }

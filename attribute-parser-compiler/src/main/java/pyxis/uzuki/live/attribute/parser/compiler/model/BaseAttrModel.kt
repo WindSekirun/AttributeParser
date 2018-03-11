@@ -11,7 +11,7 @@ import javax.lang.model.element.*
  * Description:
  */
 
-open class BaseAttrModel(protected var mElement: VariableElement) {
+open class BaseAttrModel(private var mElement: VariableElement) {
     var enclosingClass: String = ""
         protected set
     var source = ""
@@ -22,8 +22,7 @@ open class BaseAttrModel(protected var mElement: VariableElement) {
     val annotatedElementClass: String
         get() = mElement.asType().toString()
 
-    val annotatedElementConstantName: String
-        get() = mElement.constantValue.toString()
+    var annotatedElementConstantName: String? = ""
 
     val isValid: Boolean
         get() = mElement.modifiers.contains(Modifier.PUBLIC)
@@ -32,7 +31,12 @@ open class BaseAttrModel(protected var mElement: VariableElement) {
         findEnclosingClass()
     }
 
-    protected fun findEnclosingClass() {
+    fun findDefaultValue(defValue: Any?) {
+        val constantValue = mElement.constantValue
+        annotatedElementConstantName = constantValue?.toString() ?: defValue?.toString()
+    }
+
+    private fun findEnclosingClass() {
         var element: Element? = mElement
 
         while (element != null && element.kind != ElementKind.CLASS) {

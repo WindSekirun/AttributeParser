@@ -17,5 +17,6 @@ class AttrReferenceModel(element: VariableElement) : BaseAttrModel(element) {
     init {
         val annotation = element.getAnnotation(AttrReference::class.java)
         source = annotation.value
+        findDefaultValue(0)
     }
 }

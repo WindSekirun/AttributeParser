@@ -6,7 +6,16 @@
         <attr name="booleanTest" format="boolean" />
         <attr name="colorTest" format="color" />
         <attr name="dimensionTest" format="dimension" />
+        <attr name="flagTest">
+            <flag name="none" value="0" />
+            <flag name="top" value="1" />
+            <flag name="right" value="2" />
+            <flag name="bottom" value="4" />
+            <flag name="left" value="8" />
+            <flag name="all" value="15" />
+        </attr>
         <attr name="floatTest" format="float" />
         <attr name="resourceTest" format="reference" />
+        <attr name="fractionTest" format="fraction" />
     </declare-styleable>
 </resources>
