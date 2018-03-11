@@ -48,7 +48,7 @@ public @AttrInt("StyleView_intTest") int intTest;
 
 ### Default Value
 
-*from 1.1.0, declaring default value has changed*
+**from 1.1.0, declaring default value has changed**
 
 Just add 'final' modifier into field, and initialize value.
 
@@ -62,7 +62,7 @@ Just add 'final' modifier into field, and initialize value.
     @AttrString public final String stringTest = "ABC";
 ```
 
-* before 1.1.0 *
+**before 1.1.0**
 
 ```Java
 public @AttrInt(value = "StyleView_intTest", def = 0) int intTest;
