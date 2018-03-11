@@ -9,6 +9,7 @@ import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,17 +40,10 @@ import pyxis.uzuki.live.attribute.parser.compiler.model.AttrStringModel;
 import pyxis.uzuki.live.attribute.parser.compiler.model.BaseAttrModel;
 import pyxis.uzuki.live.attribute.parser.compiler.utils.Utils;
 
-/**
- * AttributesParser
- * Class: AttributeParserProcessor
- * Created by Pyxis on 3/4/18.
- * <p>
- * Description:
- */
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
 @AutoService(javax.annotation.processing.Processor.class)
 public class AttributeParserProcessor extends AbstractProcessor {
-    private Map<ClassName, CustomViewHolder> mCustomViewHolderMap = new HashMap<>();
+    private List<CustomViewHolder> mCustomViewHolderList = new ArrayList<>();
     private Map<String, List<AttrIntModel>> mAttrIntMap = new HashMap<>();
     private Map<String, List<AttrBooleanModel>> mAttrBooleanMap = new HashMap<>();
     private Map<String, List<AttrColorModel>> mAttrColorMap = new HashMap<>();
@@ -71,7 +65,9 @@ public class AttributeParserProcessor extends AbstractProcessor {
     @Override
     public boolean process(Set<? extends TypeElement> set, RoundEnvironment roundEnvironment) {
         processAnnotation(roundEnvironment);
-        writeFile();
+        for (CustomViewHolder customViewHolder : mCustomViewHolderList) {
+            writeAttributes(customViewHolder);
+        }
         return true;
     }
 
@@ -87,9 +83,7 @@ public class AttributeParserProcessor extends AbstractProcessor {
         }
 
         for (Element element : env.getElementsAnnotatedWith(CustomView.class)) {
-            ClassName classFullName = ClassName.get((TypeElement) element);
-            String className = element.getSimpleName().toString();
-            mCustomViewHolderMap.put(classFullName, new CustomViewHolder(element, classFullName, className));
+            mCustomViewHolderList.add(new CustomViewHolder(ClassName.get((TypeElement) element)));
         }
 
         Utils.findAnnotatedWith(env, Utils.getAttrIntPair(), mAttrIntMap);
@@ -103,28 +97,11 @@ public class AttributeParserProcessor extends AbstractProcessor {
         Utils.findAnnotatedWith(env, Utils.getAttrResourcePair(), mAttrResourceMap);
     }
 
-    private void writeFile() {
-        for (CustomViewHolder customViewHolder : mCustomViewHolderMap.values()) {
-            writeAttributes(customViewHolder);
-        }
-    }
-
-    private void writeClass(TypeSpec typeSpec) {
-        JavaFile javaFile = JavaFile.builder(Constants.PACKAGE_NAME, typeSpec).build();
-
-        try {
-            javaFile.writeTo(System.out);
-            javaFile.writeTo(mFiler);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     private void writeAttributes(CustomViewHolder customViewHolder) {
-        TypeSpec.Builder builder = TypeSpec.classBuilder(customViewHolder.getClassName() + Constants.ATTRIBUTES)
+        TypeSpec.Builder builder = TypeSpec.classBuilder(customViewHolder.getSimpleName() + Constants.ATTRIBUTES)
                 .addModifiers(Modifier.PUBLIC);
 
-        List<BaseAttrModel> models = Utils.getModelList(customViewHolder.getClassName(), mAttrBooleanMap,
+        List<BaseAttrModel> models = Utils.getModelList(customViewHolder.getSimpleName(), mAttrBooleanMap,
                 mAttrColorMap, mAttrDimensionMap, mAttrDrawableMap, mAttrIntMap, mAttrDimensionPixelSizeMap,
                 mAttrFloatMap, mAttrResourceMap, mAttrStringMap);
 
@@ -138,26 +115,25 @@ public class AttributeParserProcessor extends AbstractProcessor {
         builder.addMethod(createPrintVariableMethodSpec(customViewHolder, models));
         builder.addMethod(createBindAttributesMethodSpec(customViewHolder, models));
 
-        writeClass(builder.build());
+        JavaFile javaFile = JavaFile.builder(Constants.PACKAGE_NAME, builder.build()).build();
+
+        try {
+            javaFile.writeTo(System.out);
+            javaFile.writeTo(mFiler);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private FieldSpec createRFieldSpec() {
         TypeName typeName = ClassName.bestGuess(mPackageName + Constants.R_FILE);
-
-        FieldSpec.Builder builder = FieldSpec.builder(typeName, Constants.R_VARIABLE)
-                .addModifiers(Modifier.PRIVATE);
-
-        return builder.build();
+        return FieldSpec.builder(typeName, Constants.R_VARIABLE, Modifier.PRIVATE).build();
     }
 
     private FieldSpec createAttrsFieldSpec(BaseAttrModel model) {
         String variableName = model.getAnnotatedElementName();
         TypeName typeName = Utils.bestGuess(model.getAnnotatedElementClass());
-
-        FieldSpec.Builder builder = FieldSpec.builder(typeName, variableName)
-                .addModifiers(Modifier.PRIVATE, Modifier.STATIC);
-
-        return builder.build();
+        return FieldSpec.builder(typeName, variableName, Modifier.PRIVATE, Modifier.STATIC).build();
     }
 
     private MethodSpec createPrintVariableMethodSpec(CustomViewHolder customViewHolder, List<BaseAttrModel> models) {
@@ -180,41 +156,39 @@ public class AttributeParserProcessor extends AbstractProcessor {
 
         StringBuilder stringBuilder = new StringBuilder();
         String lastLine = Utils.multiply("=", maxinum);
-        String firstLine = Utils.multiply("=", (maxinum - customViewHolder.getClassName().length() - 2) / 2);
-        String firstLineMessage = String.format("\"%s %s %s\" + \n", firstLine, customViewHolder.getClassName(), firstLine);
+        String firstLine = Utils.multiply("=", (maxinum - customViewHolder.getSimpleName().length() - 2) / 2);
+        String firstLineMessage = String.format("\"%s %s %s\" + \n", firstLine, customViewHolder.getSimpleName(), firstLine);
 
         stringBuilder.append(firstLineMessage);
         stringBuilder.append(variablesBuilder.toString());
         stringBuilder.append(String.format("\"\\n%s\"", lastLine));
 
         String message = stringBuilder.toString();
-        builder.addCode(String.format(Constants.STATEMENT_LOG, customViewHolder.getClassName(), message));
+        builder.addCode(String.format(Constants.STATEMENT_LOG, customViewHolder.getSimpleName(), message));
 
         return builder.build();
     }
 
     private MethodSpec createObtainApplyMethodSpec(CustomViewHolder customViewHolder) {
-        TypeName classTypeName = customViewHolder.getClassNameComplete();
-        String classTypeParameterName = customViewHolder.getClassName().substring(0, 1).toLowerCase() +
-                customViewHolder.getClassName().substring(1);
+        TypeName classTypeName = customViewHolder.getClassName();
+        String classTypeParameterName = customViewHolder.getSimpleName().substring(0, 1).toLowerCase() +
+                customViewHolder.getSimpleName().substring(1);
 
-        MethodSpec.Builder builder = MethodSpec.methodBuilder(Constants.APPLY)
-                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+        MethodSpec.Builder builder = Utils.getMethodSpec(Constants.APPLY, Modifier.PUBLIC, Modifier.STATIC)
                 .addParameter(classTypeName, classTypeParameterName)
                 .addParameter(Constants.ATTRIBUTE_SET_CLASS_NAME, Constants.SET)
                 .addCode(String.format(Constants.STATEMENT_OBTAIN_APPLY, classTypeParameterName,
-                        classTypeParameterName, customViewHolder.getClassName()));
+                        classTypeParameterName, customViewHolder.getSimpleName()));
 
         return builder.build();
     }
 
     private MethodSpec createApplyMethodSpec(CustomViewHolder customViewHolder, List<BaseAttrModel> models) {
-        TypeName classTypeName = customViewHolder.getClassNameComplete();
-        String classTypeParameterName = customViewHolder.getClassName().substring(0, 1).toLowerCase() +
-                customViewHolder.getClassName().substring(1);
+        TypeName classTypeName = customViewHolder.getClassName();
+        String classTypeParameterName = customViewHolder.getSimpleName().substring(0, 1).toLowerCase() +
+                customViewHolder.getSimpleName().substring(1);
 
-        MethodSpec.Builder builder = MethodSpec.methodBuilder(Constants.APPLY)
-                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+        MethodSpec.Builder builder = Utils.getMethodSpec(Constants.APPLY, Modifier.PUBLIC, Modifier.STATIC)
                 .addParameter(classTypeName, classTypeParameterName)
                 .addParameter(Constants.TYPED_ARRAY_CLASS_NAME, Constants.ARRAY)
                 .addCode(Constants.BIND_ATTRIBUTES_INVOKE);
@@ -230,14 +204,12 @@ public class AttributeParserProcessor extends AbstractProcessor {
     }
 
     private MethodSpec createBindAttributesMethodSpec(CustomViewHolder customViewHolder, List<BaseAttrModel> models) {
-        MethodSpec.Builder builder = MethodSpec.methodBuilder(Constants.BIND_ATTRIBUTES)
-                .addModifiers(Modifier.PRIVATE, Modifier.STATIC)
+        MethodSpec.Builder builder = Utils.getMethodSpec(Constants.BIND_ATTRIBUTES, Modifier.PRIVATE, Modifier.STATIC)
                 .addParameter(Constants.TYPED_ARRAY_CLASS_NAME, Constants.ARRAY)
                 .addCode(Constants.STATEMENT_BINDATTRIBUTES);
 
         for (BaseAttrModel model : models) {
-            String className = customViewHolder.getClassName();
-            Utils.addCode(builder, model, className);
+            Utils.addCode(builder, model, customViewHolder.getSimpleName());
         }
 
         builder.addCode(Constants.STATEMENT_RECYCLE);
