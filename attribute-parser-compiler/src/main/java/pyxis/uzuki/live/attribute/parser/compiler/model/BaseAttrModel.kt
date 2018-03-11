@@ -22,10 +22,11 @@ open class BaseAttrModel(protected var mElement: VariableElement) {
     val annotatedElementClass: String
         get() = mElement.asType().toString()
 
+    val annotatedElementConstantName: String
+        get() = mElement.constantValue.toString()
+
     val isValid: Boolean
-        get() = !mElement.modifiers.contains(Modifier.PROTECTED) &&
-                !mElement.modifiers.contains(Modifier.PRIVATE) &&
-                !mElement.modifiers.contains(Modifier.DEFAULT)
+        get() = mElement.modifiers.contains(Modifier.PUBLIC)
 
     init {
         findEnclosingClass()

@@ -31,11 +31,11 @@ import pyxis.uzuki.live.attribute.parser.compiler.holder.CustomViewHolder;
 import pyxis.uzuki.live.attribute.parser.compiler.model.AttrBooleanModel;
 import pyxis.uzuki.live.attribute.parser.compiler.model.AttrColorModel;
 import pyxis.uzuki.live.attribute.parser.compiler.model.AttrDimensionModel;
-import pyxis.uzuki.live.attribute.parser.compiler.model.AttrDimensionPixelSizeModel;
-import pyxis.uzuki.live.attribute.parser.compiler.model.AttrDrawableModel;
 import pyxis.uzuki.live.attribute.parser.compiler.model.AttrFloatModel;
+import pyxis.uzuki.live.attribute.parser.compiler.model.AttrFractionModel;
 import pyxis.uzuki.live.attribute.parser.compiler.model.AttrIntModel;
-import pyxis.uzuki.live.attribute.parser.compiler.model.AttrResourceModel;
+import pyxis.uzuki.live.attribute.parser.compiler.model.AttrIntegerModel;
+import pyxis.uzuki.live.attribute.parser.compiler.model.AttrReferenceModel;
 import pyxis.uzuki.live.attribute.parser.compiler.model.AttrStringModel;
 import pyxis.uzuki.live.attribute.parser.compiler.model.BaseAttrModel;
 import pyxis.uzuki.live.attribute.parser.compiler.utils.Utils;
@@ -48,10 +48,10 @@ public class AttributeParserProcessor extends AbstractProcessor {
     private Map<String, List<AttrBooleanModel>> mAttrBooleanMap = new HashMap<>();
     private Map<String, List<AttrColorModel>> mAttrColorMap = new HashMap<>();
     private Map<String, List<AttrDimensionModel>> mAttrDimensionMap = new HashMap<>();
-    private Map<String, List<AttrDimensionPixelSizeModel>> mAttrDimensionPixelSizeMap = new HashMap<>();
-    private Map<String, List<AttrDrawableModel>> mAttrDrawableMap = new HashMap<>();
+    private Map<String, List<AttrIntegerModel>> mAttrIntegerMap = new HashMap<>();
+    private Map<String, List<AttrFractionModel>> mAttrFractionMap = new HashMap<>();
     private Map<String, List<AttrFloatModel>> mAttrFloatMap = new HashMap<>();
-    private Map<String, List<AttrResourceModel>> mAttrResourceMap = new HashMap<>();
+    private Map<String, List<AttrReferenceModel>> mAttrResourceMap = new HashMap<>();
     private Map<String, List<AttrStringModel>> mAttrStringMap = new HashMap<>();
     private Filer mFiler;
     private String mPackageName;
@@ -91,18 +91,23 @@ public class AttributeParserProcessor extends AbstractProcessor {
         Utils.findAnnotatedWith(env, Utils.getAttrBooleanPair(), mAttrBooleanMap);
         Utils.findAnnotatedWith(env, Utils.getAttrColorPair(), mAttrColorMap);
         Utils.findAnnotatedWith(env, Utils.getAttrDimensionPair(), mAttrDimensionMap);
-        Utils.findAnnotatedWith(env, Utils.getAttrDimensionPixelSizePair(), mAttrDimensionPixelSizeMap);
-        Utils.findAnnotatedWith(env, Utils.getAttrDrawablePair(), mAttrDrawableMap);
+        Utils.findAnnotatedWith(env, Utils.getAttrIntegerPair(), mAttrIntegerMap);
+        Utils.findAnnotatedWith(env, Utils.getAttrFractionPair(), mAttrFractionMap);
         Utils.findAnnotatedWith(env, Utils.getAttrFloatPair(), mAttrFloatMap);
         Utils.findAnnotatedWith(env, Utils.getAttrResourcePair(), mAttrResourceMap);
     }
 
-    private void writeAttributes(CustomViewHolder customViewHolder) {
-        TypeSpec.Builder builder = TypeSpec.classBuilder(customViewHolder.getSimpleName() + Constants.ATTRIBUTES)
+    private void writeAttributes(CustomViewHolder holder) {
+        TypeSpec.Builder builder = TypeSpec.classBuilder(holder.getSimpleName() + Constants.ATTRIBUTES)
                 .addModifiers(Modifier.PUBLIC);
 
-        List<BaseAttrModel> models = Utils.getModelList(customViewHolder.getSimpleName(), mAttrBooleanMap,
-                mAttrColorMap, mAttrDimensionMap, mAttrDrawableMap, mAttrIntMap, mAttrDimensionPixelSizeMap,
+        TypeName classTypeName = holder.getClassName();
+        String classTypeParameterName = holder.getSimpleName().substring(0, 1).toLowerCase() +
+                holder.getSimpleName().substring(1);
+        String simpleName = holder.getSimpleName();
+
+        List<BaseAttrModel> models = Utils.getModelList(holder.getSimpleName(), mAttrBooleanMap,
+                mAttrColorMap, mAttrDimensionMap, mAttrIntegerMap, mAttrIntMap, mAttrFractionMap,
                 mAttrFloatMap, mAttrResourceMap, mAttrStringMap);
 
         for (BaseAttrModel model : models) {
@@ -110,16 +115,13 @@ public class AttributeParserProcessor extends AbstractProcessor {
         }
 
         builder.addField(createRFieldSpec());
-        builder.addMethod(createObtainApplyMethodSpec(customViewHolder));
-        builder.addMethod(createApplyMethodSpec(customViewHolder, models));
-        builder.addMethod(createPrintVariableMethodSpec(customViewHolder, models));
-        builder.addMethod(createBindAttributesMethodSpec(customViewHolder, models));
-
-        JavaFile javaFile = JavaFile.builder(Constants.PACKAGE_NAME, builder.build()).build();
+        builder.addMethod(createObtainApplyMethodSpec(classTypeName, classTypeParameterName, holder.getSimpleName()));
+        builder.addMethod(createApplyMethodSpec(classTypeName, classTypeParameterName, models));
+        builder.addMethod(createPrintVariableMethodSpec(simpleName, models));
+        builder.addMethod(createBindAttributesMethodSpec(simpleName, models));
 
         try {
-            javaFile.writeTo(System.out);
-            javaFile.writeTo(mFiler);
+            JavaFile.builder(Constants.PACKAGE_NAME, builder.build()).build().writeTo(mFiler);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -136,10 +138,8 @@ public class AttributeParserProcessor extends AbstractProcessor {
         return FieldSpec.builder(typeName, variableName, Modifier.PRIVATE, Modifier.STATIC).build();
     }
 
-    private MethodSpec createPrintVariableMethodSpec(CustomViewHolder customViewHolder, List<BaseAttrModel> models) {
-        MethodSpec.Builder builder = MethodSpec.methodBuilder(Constants.PRINT_VARIABLES)
-                .addModifiers(Modifier.PUBLIC, Modifier.STATIC);
-
+    private MethodSpec createPrintVariableMethodSpec(String simpleName, List<BaseAttrModel> models) {
+        MethodSpec.Builder builder = Utils.getMethodSpec(Constants.PRINT_VARIABLES, Modifier.PUBLIC, Modifier.STATIC);
         StringBuilder variablesBuilder = new StringBuilder();
         int maxinum = 0;
         for (int i = 0; i < models.size(); i++) {
@@ -155,61 +155,54 @@ public class AttributeParserProcessor extends AbstractProcessor {
         }
 
         StringBuilder stringBuilder = new StringBuilder();
-        String lastLine = Utils.multiply("=", maxinum);
-        String firstLine = Utils.multiply("=", (maxinum - customViewHolder.getSimpleName().length() - 2) / 2);
-        String firstLineMessage = String.format("\"%s %s %s\" + \n", firstLine, customViewHolder.getSimpleName(), firstLine);
+        String lastLine = Utils.multiply(Constants.EQUALS, maxinum);
+        String firstLine = Utils.multiply(Constants.EQUALS, (maxinum - simpleName.length() - 2) / 2);
+        String firstLineMessage = String.format(Constants.STATEMENT_LOG_FIRST_LINE, firstLine, simpleName, firstLine);
 
         stringBuilder.append(firstLineMessage);
         stringBuilder.append(variablesBuilder.toString());
-        stringBuilder.append(String.format("\"\\n%s\"", lastLine));
+        stringBuilder.append(String.format(Constants.STATEMENT_LOG_LAST_LINE, lastLine));
 
         String message = stringBuilder.toString();
-        builder.addCode(String.format(Constants.STATEMENT_LOG, customViewHolder.getSimpleName(), message));
+        builder.addStatement("$T.d($S, $L)", Constants.LOG_CLASS, simpleName, message);
 
         return builder.build();
     }
 
-    private MethodSpec createObtainApplyMethodSpec(CustomViewHolder customViewHolder) {
-        TypeName classTypeName = customViewHolder.getClassName();
-        String classTypeParameterName = customViewHolder.getSimpleName().substring(0, 1).toLowerCase() +
-                customViewHolder.getSimpleName().substring(1);
-
+    private MethodSpec createObtainApplyMethodSpec(TypeName classTypeName, String classTypeParameterName, String simpleName) {
         MethodSpec.Builder builder = Utils.getMethodSpec(Constants.APPLY, Modifier.PUBLIC, Modifier.STATIC)
                 .addParameter(classTypeName, classTypeParameterName)
                 .addParameter(Constants.ATTRIBUTE_SET_CLASS_NAME, Constants.SET)
                 .addCode(String.format(Constants.STATEMENT_OBTAIN_APPLY, classTypeParameterName,
-                        classTypeParameterName, customViewHolder.getSimpleName()));
+                        classTypeParameterName, simpleName));
 
         return builder.build();
     }
 
-    private MethodSpec createApplyMethodSpec(CustomViewHolder customViewHolder, List<BaseAttrModel> models) {
-        TypeName classTypeName = customViewHolder.getClassName();
-        String classTypeParameterName = customViewHolder.getSimpleName().substring(0, 1).toLowerCase() +
-                customViewHolder.getSimpleName().substring(1);
-
+    private MethodSpec createApplyMethodSpec(TypeName classTypeName, String classTypeParameterName, List<BaseAttrModel> models) {
         MethodSpec.Builder builder = Utils.getMethodSpec(Constants.APPLY, Modifier.PUBLIC, Modifier.STATIC)
                 .addParameter(classTypeName, classTypeParameterName)
                 .addParameter(Constants.TYPED_ARRAY_CLASS_NAME, Constants.ARRAY)
                 .addCode(Constants.BIND_ATTRIBUTES_INVOKE);
 
+
         for (BaseAttrModel model : models) {
             String variableName = model.getAnnotatedElementName();
 
-            builder.addCode(String.format(Constants.STATEMENT_APPLY, classTypeParameterName,
-                    variableName, variableName));
+            builder.addStatement("$T.process($L, $S, $L)", Constants.FIELD_MODIFIER, classTypeParameterName,
+                    variableName, variableName);
         }
 
         return builder.build();
     }
 
-    private MethodSpec createBindAttributesMethodSpec(CustomViewHolder customViewHolder, List<BaseAttrModel> models) {
+    private MethodSpec createBindAttributesMethodSpec(String simpleName, List<BaseAttrModel> models) {
         MethodSpec.Builder builder = Utils.getMethodSpec(Constants.BIND_ATTRIBUTES, Modifier.PRIVATE, Modifier.STATIC)
                 .addParameter(Constants.TYPED_ARRAY_CLASS_NAME, Constants.ARRAY)
                 .addCode(Constants.STATEMENT_BINDATTRIBUTES);
 
         for (BaseAttrModel model : models) {
-            Utils.addCode(builder, model, customViewHolder.getSimpleName());
+            Utils.addCode(builder, model, simpleName);
         }
 
         builder.addCode(Constants.STATEMENT_RECYCLE);

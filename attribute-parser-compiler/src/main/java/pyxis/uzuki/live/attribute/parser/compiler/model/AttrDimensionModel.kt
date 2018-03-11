@@ -13,11 +13,8 @@ import javax.lang.model.element.VariableElement
  */
 
 class AttrDimensionModel(element: VariableElement) : BaseAttrModel(element) {
-    val defValue: Float
-
     init {
         val annotation = element.getAnnotation<AttrDimension>(AttrDimension::class.java)
         source = annotation.value
-        defValue = annotation.def
     }
 }

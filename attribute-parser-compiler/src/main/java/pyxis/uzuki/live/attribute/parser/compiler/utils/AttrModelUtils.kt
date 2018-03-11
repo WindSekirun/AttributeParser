@@ -12,18 +12,18 @@ import javax.lang.model.element.VariableElement
 import kotlin.reflect.KClass
 
 val supportedAnnotationSet = classNameSetOf(AttrInt::class, AttrBoolean::class,
-        AttrColor::class, AttrDimension::class, AttrDimensionPixelSize::class, AttrDrawable::class,
-        AttrFloat::class, AttrResource::class, AttrString::class, CustomView::class, AttributeParser::class)
+        AttrColor::class, AttrDimension::class, AttrInteger::class, AttrFraction::class,
+        AttrFloat::class, AttrReference::class, AttrString::class, CustomView::class, AttributeParser::class)
 
 val attrIntPair = AttrInt::class to AttrIntModel::class
 val attrStringPair = AttrString::class to AttrStringModel::class
 val attrBooleanPair = AttrBoolean::class to AttrBooleanModel::class
 val attrColorPair = AttrColor::class to AttrColorModel::class
 val attrDimensionPair = AttrDimension::class to AttrDimensionModel::class
-val attrDimensionPixelSizePair = AttrDimensionPixelSize::class to AttrDimensionPixelSizeModel::class
-val attrDrawablePair = AttrDrawable::class to AttrDrawableModel::class
 val attrFloatPair = AttrFloat::class to AttrFloatModel::class
-val attrResourcePair = AttrResource::class to AttrResourceModel::class
+val attrResourcePair = AttrReference::class to AttrReferenceModel::class
+val attrIntegerPair = AttrInteger::class to AttrIntegerModel::class
+val attrFractionPair = AttrFraction::class to AttrFractionModel::class
 
 fun MethodSpec.Builder.addCode(model: BaseAttrModel, className: String) {
     when (model) {
@@ -32,16 +32,30 @@ fun MethodSpec.Builder.addCode(model: BaseAttrModel, className: String) {
         is AttrBooleanModel -> this.addCode(createBooleanCode(model, className))
         is AttrColorModel -> this.addCode(createColorCode(model, className))
         is AttrDimensionModel -> this.addCode(createDimensionCode(model, className))
-        is AttrDimensionPixelSizeModel -> this.addCode(createDimensionPixelCode(model, className))
-        is AttrDrawableModel -> this.addCode(createDrawableCode(model, className))
         is AttrFloatModel -> this.addCode(createFloatCode(model, className))
-        is AttrResourceModel -> this.addCode(createResourceCode(model, className))
+        is AttrReferenceModel -> this.addCode(createResourceCode(model, className))
+        is AttrFractionModel -> this.addCode(createFractionCode(model, className))
+        is AttrIntegerModel -> this.addCode(createIntegerCode(model, className))
     }
+
+    if (model is AttrStringModel) {
+        addEmptyCondition(model)
+    }
+}
+
+fun MethodSpec.Builder.addEmptyCondition(model: AttrStringModel) {
+    val variableName = model.annotatedElementName
+    val defValue = "\"${model.annotatedElementConstantName}\""
+
+    this.addCode("\n")
+
+    this.beginControlFlow("if ($variableName == null || $variableName.length() == 0)")
+            .addCode(String.format("%s = %s;\n", variableName, defValue))
+            .endControlFlow()
 }
 
 fun <T : BaseAttrModel> getModelList(className: String, vararg maps: Map<String, List<T>>) =
         maps.map { getModelList(it, className) }.flatMap { it }.toList()
-
 
 fun <A : Annotation, T : BaseAttrModel> RoundEnvironment.findAnnotatedWith(pair: Pair<Class<A>, Class<T>>,
                                                                            map: MutableMap<String, List<T>>) {
@@ -106,28 +120,32 @@ private fun reviseSource(className: String, variableName: String, source: String
 }
 
 private fun createIntCode(model: AttrIntModel, className: String) =
-        createModelCode(model, "%s = array.getInt(%s, %s);\n", className, model.defValue)
+        createModelCode(model, "%s = array.getInt(%s, %s);\n", className, model.annotatedElementConstantName)
 
 private fun createBooleanCode(model: AttrBooleanModel, className: String) =
-        createModelCode(model, "%s = array.getBoolean(%s, %s);\n", className, model.defValue)
+        createModelCode(model, "%s = array.getBoolean(%s, %s);\n", className, model.annotatedElementConstantName)
 
 private fun createColorCode(model: AttrColorModel, className: String) =
-        createModelCode(model, "%s = array.getColor(%s, %s);\n", className, model.defValue)
+        createModelCode(model, "%s = array.getColor(%s, %s);\n", className, model.annotatedElementConstantName)
 
 private fun createDimensionCode(model: AttrDimensionModel, className: String) =
-        createModelCode(model, "%s = array.getDimension(%s, %sf);\n", className, model.defValue)
-
-private fun createDimensionPixelCode(model: AttrDimensionPixelSizeModel, className: String) =
-        createModelCode(model, "%s = array.getDimensionPixelSize(%s, %s);\n", className, model.defValue)
-
-private fun createDrawableCode(model: AttrDrawableModel, className: String) =
-        createModelCode(model, "%s = array.getString(%s);\n", className, null)
+        createModelCode(model, "%s = array.getDimension(%s, %sf);\n", className, model.annotatedElementConstantName)
 
 private fun createFloatCode(model: AttrFloatModel, className: String) =
-        createModelCode(model, "%s = array.getFloat(%s, %sf);\n", className, model.defValue)
+        createModelCode(model, "%s = array.getFloat(%s, %sf);\n", className, model.annotatedElementConstantName)
 
-private fun createResourceCode(model: AttrResourceModel, className: String) =
-        createModelCode(model, "%s = array.getResourceId(%s, %s);\n", className, model.defValue)
+private fun createResourceCode(model: AttrReferenceModel, className: String) =
+        createModelCode(model, "%s = array.getResourceId(%s, %s);\n", className, model.annotatedElementConstantName)
 
 private fun createStringCode(model: AttrStringModel, className: String) =
         createModelCode(model, "%s = array.getString(%s);\n", className, null)
+
+private fun createIntegerCode(model: AttrIntegerModel, className: String) =
+        createModelCode(model, "%s = array.getInteger(%s, %s);\n", className, model.annotatedElementConstantName)
+
+private fun createFractionCode(model: AttrFractionModel, className: String): String {
+    val variableName = model.annotatedElementName
+    val source = reviseSource(className, variableName, model.source)
+    return "%s = array.getFraction(%s, %s, %s, %s);\n".format(variableName, source, model.base, model.pbase,
+            model.annotatedElementConstantName)
+}

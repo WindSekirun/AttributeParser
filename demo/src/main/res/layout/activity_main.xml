@@ -8,11 +8,5 @@
     <pyxis.uzuki.live.attribute.parser.demo.widget.StyleView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:booleanTest="true"
-        app:colorTest="@android:color/white"
-        app:dimensionTest="@android:dimen/app_icon_size"
-        app:floatTest="16"
-        app:intTest="1"
-        app:resourceTest="@drawable/ic_launcher_background"
-        app:stringTest="abc" />
+        />
 </LinearLayout>

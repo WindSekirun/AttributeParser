@@ -16,12 +16,20 @@ internal object Constants {
     const val PRINT_VARIABLES = "printVariables"
     const val BIND_ATTRIBUTES = "bindAttributes"
     const val SET = "set"
-    const val OBTAIN_APPLY = "apply"
+    const val EQUALS = "="
     const val STATEMENT_BINDATTRIBUTES = "if (array == null) return;\n\n"
     const val STATEMENT_RECYCLE = "\narray.recycle();\n"
     const val STATEMENT_OBTAIN_APPLY = "apply(%s, %s.getContext().obtainStyledAttributes(set, R.styleable.%s));\n"
     const val STATEMENT_LOG = "android.util.Log.d(\"%s\", %s);\n"
+    const val STATEMENT_LOG_FIRST_LINE = "\"%s %s %s\" + \n"
+    const val STATEMENT_LOG_LAST_LINE = "\"\\n%s\""
 
-    @JvmField val TYPED_ARRAY_CLASS_NAME: TypeName = ClassName.bestGuess("android.content.res.TypedArray")
-    @JvmField val ATTRIBUTE_SET_CLASS_NAME: TypeName = ClassName.bestGuess("android.util.AttributeSet")
+    @JvmField
+    val FIELD_MODIFIER = ClassName.bestGuess("pyxis.uzuki.live.attribute.parser.FieldModifier")
+    @JvmField
+    val TYPED_ARRAY_CLASS_NAME: TypeName = ClassName.bestGuess("android.content.res.TypedArray")
+    @JvmField
+    val ATTRIBUTE_SET_CLASS_NAME: TypeName = ClassName.bestGuess("android.util.AttributeSet")
+    @JvmField
+    val LOG_CLASS = ClassName.bestGuess("android.util.Log")
 }
