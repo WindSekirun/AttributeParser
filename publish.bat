@@ -1,5 +1,5 @@
 gradlew clean
-gradlew :dagger-auto-inject:install
-gradlew :dagger-auto-inject:bintrayUpload
-gradlew :dagger-auto-inject-compiler:install
-gradlew./g :dagger-auto-inject-compiler:bintrayUpload
+gradlew :attribute-parser:install
+gradlew :attribute-parser:bintrayUpload
+gradlew :attribute-parser-compiler:install
+gradlew :attribute-parser-compiler:bintrayUpload

@@ -27,5 +27,5 @@ allprojects {
 }
 
 ext {
-    libraryVersion = "1.0.1"
+    libraryVersion = "1.1.0"
 }
