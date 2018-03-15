@@ -9,7 +9,10 @@ import pyxis.uzuki.live.attribute.parser.compiler.model.*
 import pyxis.uzuki.live.attribute.parser.compiler.utils.*
 import java.io.IOException
 import java.util.*
-import javax.annotation.processing.*
+import javax.annotation.processing.AbstractProcessor
+import javax.annotation.processing.Processor
+import javax.annotation.processing.RoundEnvironment
+import javax.annotation.processing.SupportedSourceVersion
 import javax.lang.model.SourceVersion
 import javax.lang.model.element.Modifier
 import javax.lang.model.element.TypeElement
@@ -37,9 +40,7 @@ class AttributeParserProcessor : AbstractProcessor() {
         return true
     }
 
-    override fun getSupportedAnnotationTypes(): Set<String> {
-        return supportedAnnotationSet
-    }
+    override fun getSupportedAnnotationTypes() = supportedAnnotationSet
 
     private fun processAnnotation(env: RoundEnvironment) {
         env.getElementsAnnotatedWith(AttributeParser::class.java)
@@ -62,16 +63,15 @@ class AttributeParserProcessor : AbstractProcessor() {
     }
 
     private fun writeAttributes(holder: CustomViewHolder) {
-        val builder = TypeSpec.classBuilder(holder.simpleName + Constants.ATTRIBUTES)
-                .addModifiers(Modifier.PUBLIC)
-
         val classTypeName = holder.className
         val classTypeParameterName = holder.simpleName.substring(0, 1).toLowerCase() + holder.simpleName.substring(1)
         val simpleName = holder.simpleName
 
-        val models = getModelList(holder.simpleName, mAttrBooleanMap,
-                mAttrColorMap, mAttrDimensionMap, mAttrIntegerMap, mAttrIntMap, mAttrFractionMap,
-                mAttrFloatMap, mAttrResourceMap, mAttrStringMap)
+        val builder = TypeSpec.classBuilder(simpleName + Constants.ATTRIBUTES)
+                .addModifiers(Modifier.PUBLIC)
+
+        val models = getModelList(simpleName, mAttrBooleanMap, mAttrColorMap, mAttrDimensionMap,
+                mAttrIntegerMap, mAttrIntMap, mAttrFractionMap, mAttrFloatMap, mAttrResourceMap, mAttrStringMap)
 
         for (model in models) {
             builder.addField(createAttrsFieldSpec(model))
@@ -84,11 +84,13 @@ class AttributeParserProcessor : AbstractProcessor() {
         builder.addMethod(createBindAttributesMethodSpec(simpleName, models))
 
         try {
-            JavaFile.builder(Constants.PACKAGE_NAME, builder.build()).build().writeTo(processingEnv.filer)
+            val file = JavaFile.builder(Constants.PACKAGE_NAME, builder.build())
+                    .indent("   ")
+                    .build()
+            file.writeTo(processingEnv.filer)
         } catch (e: IOException) {
             e.printStackTrace()
         }
-
     }
 
     private fun createRFieldSpec(): FieldSpec {
@@ -98,24 +100,20 @@ class AttributeParserProcessor : AbstractProcessor() {
 
     private fun createAttrsFieldSpec(model: BaseAttrModel): FieldSpec {
         val variableName = model.annotatedElementName
-        val typeName = bestGuess(model.annotatedElementClass)
+        val typeName = model.annotatedElementClass.bestGuess()
         return FieldSpec.builder(typeName, variableName, Modifier.PRIVATE, Modifier.STATIC).build()
     }
 
     private fun createPrintVariableMethodSpec(simpleName: String, models: List<BaseAttrModel>): MethodSpec {
-        val builder = getMethodSpec(Constants.PRINT_VARIABLES, Modifier.PUBLIC, Modifier.STATIC)
+        val builder = Constants.PRINT_VARIABLES.getMethodSpec(Modifier.PUBLIC, Modifier.STATIC)
         val variablesBuilder = StringBuilder()
         var maxinum = 0
-        for (i in models.indices) {
-            val model = models[i]
+        for (model in models) {
             val variableName = model.annotatedElementName
             val className = model.annotatedElementClass
             val line = "\"\\n$className $variableName = \" + $variableName +  \n"
-
             variablesBuilder.append(line)
-
-            val count = line.length
-            maxinum = Math.max(maxinum, count)
+            maxinum = Math.max(maxinum, line.length)
         }
 
         val stringBuilder = StringBuilder()
@@ -134,34 +132,31 @@ class AttributeParserProcessor : AbstractProcessor() {
     }
 
     private fun createObtainApplyMethodSpec(classTypeName: TypeName, classTypeParameterName: String, simpleName: String): MethodSpec {
-        val builder = getMethodSpec(Constants.APPLY, Modifier.PUBLIC, Modifier.STATIC)
+        val builder = Constants.APPLY.getMethodSpec(Modifier.PUBLIC, Modifier.STATIC)
                 .addParameter(classTypeName, classTypeParameterName)
                 .addParameter(Constants.ATTRIBUTE_SET_CLASS_NAME, Constants.SET)
-                .addCode(String.format(Constants.STATEMENT_OBTAIN_APPLY, classTypeParameterName,
-                        classTypeParameterName, simpleName))
+                .addCode(Constants.STATEMENT_OBTAIN_APPLY.format(classTypeParameterName, classTypeParameterName, simpleName))
 
         return builder.build()
     }
 
     private fun createApplyMethodSpec(classTypeName: TypeName, classTypeParameterName: String, models: List<BaseAttrModel>): MethodSpec {
-        val builder = getMethodSpec(Constants.APPLY, Modifier.PUBLIC, Modifier.STATIC)
+        val builder = Constants.APPLY.getMethodSpec(Modifier.PUBLIC, Modifier.STATIC)
                 .addParameter(classTypeName, classTypeParameterName)
                 .addParameter(Constants.TYPED_ARRAY_CLASS_NAME, Constants.ARRAY)
                 .addCode(Constants.BIND_ATTRIBUTES_INVOKE)
 
 
-        models
-                .map { it.annotatedElementName }
+        models.map { it.annotatedElementName }
                 .forEach {
-                    builder.addStatement("\$T.process(\$L, \$S, \$L)", Constants.FIELD_MODIFIER, classTypeParameterName,
-                            it, it)
+                    builder.addStatement("\$T.process(\$L, \$S, \$L)", Constants.FIELD_MODIFIER, classTypeParameterName, it, it)
                 }
 
         return builder.build()
     }
 
     private fun createBindAttributesMethodSpec(simpleName: String, models: List<BaseAttrModel>): MethodSpec {
-        val builder = getMethodSpec(Constants.BIND_ATTRIBUTES, Modifier.PRIVATE, Modifier.STATIC)
+        val builder = Constants.BIND_ATTRIBUTES.getMethodSpec(Modifier.PRIVATE, Modifier.STATIC)
                 .addParameter(Constants.TYPED_ARRAY_CLASS_NAME, Constants.ARRAY)
                 .addCode(Constants.STATEMENT_BINDATTRIBUTES)
 

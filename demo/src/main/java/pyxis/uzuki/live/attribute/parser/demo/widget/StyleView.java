@@ -5,6 +5,7 @@ import android.util.AttributeSet;
 import android.widget.LinearLayout;
 
 //import pyxis.uzuki.live.attribute.parser.StyleViewAttributes;
+import pyxis.uzuki.live.attribute.parser.StyleViewAttributes;
 import pyxis.uzuki.live.attribute.parser.annotation.AttrBoolean;
 import pyxis.uzuki.live.attribute.parser.annotation.AttrColor;
 import pyxis.uzuki.live.attribute.parser.annotation.AttrDimension;
@@ -43,7 +44,7 @@ public class StyleView extends LinearLayout {
     }
 
     private void init(AttributeSet attributeSet) {
-//        StyleViewAttributes.apply(this, attributeSet);
-//        StyleViewAttributes.printVariables();
+        StyleViewAttributes.apply(this, attributeSet);
+        StyleViewAttributes.printVariables();
     }
 }

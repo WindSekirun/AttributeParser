@@ -12,8 +12,8 @@ import com.squareup.javapoet.TypeName
  * @param elementName
  * @return
  */
-fun bestGuess(elementName: String): TypeName {
-    return when (elementName) {
+fun String.bestGuess(): TypeName {
+    return when (this) {
         "int" -> TypeName.INT
         "byte" -> TypeName.BYTE
         "short" -> TypeName.SHORT
@@ -22,6 +22,6 @@ fun bestGuess(elementName: String): TypeName {
         "float" -> TypeName.FLOAT
         "double" -> TypeName.DOUBLE
         "boolean" -> TypeName.BOOLEAN
-        else -> ClassName.bestGuess(elementName)
+        else -> ClassName.bestGuess(this)
     }
 }
