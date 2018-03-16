@@ -24,8 +24,7 @@ internal object Constants {
     const val STATEMENT_LOG_FIRST_LINE = "\"%s %s %s\" + \n"
     const val STATEMENT_LOG_LAST_LINE = "\"\\n%s\""
 
-    @JvmField
-    val FIELD_MODIFIER = ClassName.bestGuess("pyxis.uzuki.live.attribute.parser.FieldModifier")
+
     @JvmField
     val TYPED_ARRAY_CLASS_NAME: TypeName = ClassName.bestGuess("android.content.res.TypedArray").asNullable()
     @JvmField

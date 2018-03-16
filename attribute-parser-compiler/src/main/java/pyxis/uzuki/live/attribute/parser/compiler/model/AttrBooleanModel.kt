@@ -16,6 +16,6 @@ class AttrBooleanModel(element: VariableElement) : BaseAttrModel(element) {
     init {
         val annotation = element.getAnnotation<AttrBoolean>(AttrBoolean::class.java)
         source = annotation.value
-        findDefaultValue(false)
+        defValue = element
     }
 }

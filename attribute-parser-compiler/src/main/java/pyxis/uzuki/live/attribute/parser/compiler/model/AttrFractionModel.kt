@@ -21,6 +21,6 @@ class AttrFractionModel(element: VariableElement) : BaseAttrModel(element) {
         source = annotation.value
         base = annotation.base
         pbase = annotation.pbase
-        findDefaultValue(0)
+        defValue = annotation.defValue
     }
 }

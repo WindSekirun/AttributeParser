@@ -69,7 +69,7 @@ class AttributeParserProcessor : AbstractProcessor() {
         val simpleName = holder.simpleName
         val fileName = simpleName + Constants.ATTRIBUTES
 
-        val builder = FileSpec.builder(holder.packageName, fileName)
+        val builder = TypeSpec.objectBuilder(fileName)
 
         val models = getModelList(simpleName, mAttrBooleanMap, mAttrColorMap, mAttrDimensionMap,
                 mAttrIntegerMap, mAttrIntMap, mAttrFractionMap, mAttrFloatMap, mAttrResourceMap, mAttrStringMap)
@@ -89,7 +89,8 @@ class AttributeParserProcessor : AbstractProcessor() {
                 ?.let { File(it, "$fileName.kt") }
                 ?: throw IllegalArgumentException("No output directory")
 
-        val fileSpec = builder.build()
+        val typeSpec = builder.build()
+        val fileSpec = FileSpec.builder(holder.packageName, fileName).addType(typeSpec).build()
         fileSpec.writeTo(kaptKotlinGeneratedDir)
     }
 
@@ -107,6 +108,7 @@ class AttributeParserProcessor : AbstractProcessor() {
 
     private fun createPrintVariableMethodSpec(simpleName: String, models: List<BaseAttrModel>): FunSpec {
         val builder = Constants.PRINT_VARIABLES.getFunSpec(KModifier.PUBLIC)
+                .addAnnotation(JvmStatic::class)
         val variablesBuilder = StringBuilder()
         var maxinum = 0
         for (model in models) {
@@ -136,6 +138,7 @@ class AttributeParserProcessor : AbstractProcessor() {
         val builder = Constants.APPLY.getFunSpec(KModifier.PUBLIC)
                 .addParameter(classTypeParameterName, classTypeName)
                 .addParameter(Constants.SET, Constants.ATTRIBUTE_SET_CLASS_NAME)
+                .addAnnotation(JvmStatic::class)
                 .addCode(Constants.STATEMENT_OBTAIN_APPLY.format(classTypeParameterName, classTypeParameterName, simpleName))
 
         return builder.build()
@@ -145,11 +148,12 @@ class AttributeParserProcessor : AbstractProcessor() {
         val builder = Constants.APPLY.getFunSpec(KModifier.PUBLIC)
                 .addParameter(classTypeParameterName, classTypeName)
                 .addParameter(Constants.ARRAY, Constants.TYPED_ARRAY_CLASS_NAME)
+                .addAnnotation(JvmStatic::class)
                 .addCode(Constants.BIND_ATTRIBUTES_INVOKE)
 
         models.map { it.annotatedElementName }
                 .forEach {
-                    builder.addCode("%T.process(%L, %S, %L);\n", Constants.FIELD_MODIFIER, classTypeParameterName, it, it)
+                    builder.addCode("%L.%L = %L;\n", classTypeParameterName, it, it)
                 }
 
         return builder.build()

@@ -14,6 +14,7 @@ import javax.lang.model.element.*
 open class BaseAttrModel(private var mElement: VariableElement) {
     var enclosingClass: String = ""
         protected set
+    var defValue: Any? = null
     var source = ""
 
     val annotatedElementName: String
@@ -22,18 +23,11 @@ open class BaseAttrModel(private var mElement: VariableElement) {
     val annotatedElementClass: String
         get() = mElement.asType().toString()
 
-    var annotatedElementConstantName: String? = ""
-
     val isValid: Boolean
         get() = mElement.modifiers.contains(Modifier.PUBLIC)
 
     init {
         findEnclosingClass()
-    }
-
-    fun findDefaultValue(defValue: Any?) {
-        val constantValue = mElement.constantValue
-        annotatedElementConstantName = constantValue?.toString() ?: defValue?.toString()
     }
 
     private fun findEnclosingClass() {

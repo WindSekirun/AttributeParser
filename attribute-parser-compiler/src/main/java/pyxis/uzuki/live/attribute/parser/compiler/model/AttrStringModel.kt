@@ -17,6 +17,6 @@ class AttrStringModel(element: VariableElement) : BaseAttrModel(element) {
     init {
         val annotation = element.getAnnotation(AttrString::class.java)
         source = annotation.value
-        findDefaultValue("")
+        defValue = annotation.defValue
     }
 }

@@ -16,6 +16,6 @@ class AttrFloatModel(element: VariableElement) : BaseAttrModel(element) {
     init {
         val annotation = element.getAnnotation<AttrFloat>(AttrFloat::class.java)
         source = annotation.value
-        findDefaultValue(0)
+        defValue = annotation.defValue
     }
 }

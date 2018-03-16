@@ -16,6 +16,6 @@ class AttrDimensionModel(element: VariableElement) : BaseAttrModel(element) {
     init {
         val annotation = element.getAnnotation<AttrDimension>(AttrDimension::class.java)
         source = annotation.value
-        findDefaultValue(0)
+        defValue = annotation.defValue
     }
 }

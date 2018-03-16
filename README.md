@@ -4,7 +4,7 @@
 
 **Inject automatically your Attribute of CustomView, just with simple annotation**
 
-generate own class to handle attributes using Annotation Processor, setting value by reflection.
+Generate own '*.kt' class to handle attributes using Annotation Processor, setting value by reflection.
 
 Written in Kotlin, both language(Java, Kotlin) are fully supported!
 
@@ -48,25 +48,11 @@ public @AttrInt("StyleView_intTest") int intTest;
 
 ### Default Value
 
-**from 1.1.0, declaring default value has changed**
-
-Just add 'final' modifier into field, and initialize value.
-
-```Java
-    @AttrInt public final int intTest = 10;
-    @AttrBoolean public final boolean booleanTest = false;
-    @AttrColor public final int colorTest = android.R.color.darker_gray;
-    @AttrDimension public final float dimensionTest = android.R.dimen.thumbnail_width;
-    @AttrFloat public final float floatTest = 10;
-    @AttrReference public final int resourceTest = android.R.drawable.arrow_down_float;
-    @AttrString public final String stringTest = "ABC";
-```
-
-**before 1.1.0**
-
 ```Java
 public @AttrInt(value = "StyleView_intTest", def = 0) int intTest;
 ```
+
+same in all Attr* annotations.
 
 #### Logging Variables
 
