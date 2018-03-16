@@ -3,7 +3,7 @@
 
 package pyxis.uzuki.live.attribute.parser.compiler.utils
 
-import com.squareup.javapoet.MethodSpec
+import com.squareup.kotlinpoet.FunSpec
 import pyxis.uzuki.live.attribute.parser.annotation.*
 import pyxis.uzuki.live.attribute.parser.compiler.model.*
 import java.util.*
@@ -25,7 +25,7 @@ val attrResourcePair = AttrReference::class to AttrReferenceModel::class
 val attrIntegerPair = AttrInteger::class to AttrIntegerModel::class
 val attrFractionPair = AttrFraction::class to AttrFractionModel::class
 
-fun MethodSpec.Builder.addCode(model: BaseAttrModel, className: String) {
+fun FunSpec.Builder.addCode(model: BaseAttrModel, className: String) {
     when (model) {
         is AttrIntModel -> this.addCode(createIntCode(model, className))
         is AttrStringModel -> this.addCode(createStringCode(model, className))
@@ -43,13 +43,13 @@ fun MethodSpec.Builder.addCode(model: BaseAttrModel, className: String) {
     }
 }
 
-fun MethodSpec.Builder.addEmptyCondition(model: AttrStringModel) {
+fun FunSpec.Builder.addEmptyCondition(model: AttrStringModel) {
     val variableName = model.annotatedElementName
     val defValue = "\"${model.annotatedElementConstantName}\""
 
     this.addCode("\n")
 
-    this.beginControlFlow("if ($variableName == null || $variableName.length() == 0)")
+    this.beginControlFlow("if ($variableName == null || $variableName.length == 0)")
             .addCode(String.format("%s = %s;\n", variableName, defValue))
             .endControlFlow()
 }
