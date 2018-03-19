@@ -2,4 +2,4 @@ package pyxis.uzuki.live.attribute.parser.annotation
 
 @Target(AnnotationTarget.FIELD)
 @Retention(AnnotationRetention.SOURCE)
-annotation class AttrInteger(val value: String = "")
+annotation class AttrInteger(val value: String = "", val defValue: Int = 0)

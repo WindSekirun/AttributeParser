@@ -3,7 +3,7 @@
 
 package pyxis.uzuki.live.attribute.parser.compiler.utils
 
-import com.squareup.javapoet.MethodSpec
+import com.squareup.kotlinpoet.FunSpec
 import pyxis.uzuki.live.attribute.parser.annotation.*
 import pyxis.uzuki.live.attribute.parser.compiler.model.*
 import java.util.*
@@ -25,7 +25,7 @@ val attrResourcePair = AttrReference::class to AttrReferenceModel::class
 val attrIntegerPair = AttrInteger::class to AttrIntegerModel::class
 val attrFractionPair = AttrFraction::class to AttrFractionModel::class
 
-fun MethodSpec.Builder.addCode(model: BaseAttrModel, className: String) {
+fun FunSpec.Builder.addCode(model: BaseAttrModel, className: String) {
     when (model) {
         is AttrIntModel -> this.addCode(createIntCode(model, className))
         is AttrStringModel -> this.addCode(createStringCode(model, className))
@@ -43,13 +43,13 @@ fun MethodSpec.Builder.addCode(model: BaseAttrModel, className: String) {
     }
 }
 
-fun MethodSpec.Builder.addEmptyCondition(model: AttrStringModel) {
+fun FunSpec.Builder.addEmptyCondition(model: AttrStringModel) {
     val variableName = model.annotatedElementName
-    val defValue = "\"${model.annotatedElementConstantName}\""
+    val defValue = "\"${model.defValue}\""
 
     this.addCode("\n")
 
-    this.beginControlFlow("if ($variableName == null || $variableName.length() == 0)")
+    this.beginControlFlow("if ($variableName.length == 0)")
             .addCode(String.format("%s = %s;\n", variableName, defValue))
             .endControlFlow()
 }
@@ -120,32 +120,32 @@ private fun reviseSource(className: String, variableName: String, source: String
 }
 
 private fun createIntCode(model: AttrIntModel, className: String) =
-        createModelCode(model, "%s = array.getInt(%s, %s);\n", className, model.annotatedElementConstantName)
+        createModelCode(model, "%s = array.getInt(%s, %s);\n", className, model.defValue)
 
 private fun createBooleanCode(model: AttrBooleanModel, className: String) =
-        createModelCode(model, "%s = array.getBoolean(%s, %s);\n", className, model.annotatedElementConstantName)
+        createModelCode(model, "%s = array.getBoolean(%s, %s);\n", className, model.defValue)
 
 private fun createColorCode(model: AttrColorModel, className: String) =
-        createModelCode(model, "%s = array.getColor(%s, %s);\n", className, model.annotatedElementConstantName)
+        createModelCode(model, "%s = array.getColor(%s, %s);\n", className, model.defValue)
 
 private fun createDimensionCode(model: AttrDimensionModel, className: String) =
-        createModelCode(model, "%s = array.getDimension(%s, %sf);\n", className, model.annotatedElementConstantName)
+        createModelCode(model, "%s = array.getDimension(%s, %sf);\n", className, model.defValue)
 
 private fun createFloatCode(model: AttrFloatModel, className: String) =
-        createModelCode(model, "%s = array.getFloat(%s, %sf);\n", className, model.annotatedElementConstantName)
+        createModelCode(model, "%s = array.getFloat(%s, %sf);\n", className, model.defValue)
 
 private fun createResourceCode(model: AttrReferenceModel, className: String) =
-        createModelCode(model, "%s = array.getResourceId(%s, %s);\n", className, model.annotatedElementConstantName)
+        createModelCode(model, "%s = array.getResourceId(%s, %s);\n", className, model.defValue)
 
 private fun createStringCode(model: AttrStringModel, className: String) =
         createModelCode(model, "%s = array.getString(%s);\n", className, null)
 
 private fun createIntegerCode(model: AttrIntegerModel, className: String) =
-        createModelCode(model, "%s = array.getInteger(%s, %s);\n", className, model.annotatedElementConstantName)
+        createModelCode(model, "%s = array.getInteger(%s, %s);\n", className, model.defValue)
 
 private fun createFractionCode(model: AttrFractionModel, className: String): String {
     val variableName = model.annotatedElementName
     val source = reviseSource(className, variableName, model.source)
     return "%s = array.getFraction(%s, %s, %s, %sf);\n".format(variableName, source, model.base, model.pbase,
-            model.annotatedElementConstantName)
+            model.defValue)
 }

@@ -1,7 +1,7 @@
 package pyxis.uzuki.live.attribute.parser.compiler
 
-import com.squareup.javapoet.ClassName
-import com.squareup.javapoet.TypeName
+import com.squareup.kotlinpoet.ClassName
+import com.squareup.kotlinpoet.TypeName
 
 internal object Constants {
     const val PACKAGE_NAME = "pyxis.uzuki.live.attribute.parser"
@@ -24,12 +24,11 @@ internal object Constants {
     const val STATEMENT_LOG_FIRST_LINE = "\"%s %s %s\" + \n"
     const val STATEMENT_LOG_LAST_LINE = "\"\\n%s\""
 
+
     @JvmField
-    val FIELD_MODIFIER = ClassName.bestGuess("pyxis.uzuki.live.attribute.parser.FieldModifier")
+    val TYPED_ARRAY_CLASS_NAME: TypeName = ClassName.bestGuess("android.content.res.TypedArray").asNullable()
     @JvmField
-    val TYPED_ARRAY_CLASS_NAME: TypeName = ClassName.bestGuess("android.content.res.TypedArray")
-    @JvmField
-    val ATTRIBUTE_SET_CLASS_NAME: TypeName = ClassName.bestGuess("android.util.AttributeSet")
+    val ATTRIBUTE_SET_CLASS_NAME: TypeName = ClassName.bestGuess("android.util.AttributeSet").asNullable()
     @JvmField
     val LOG_CLASS = ClassName.bestGuess("android.util.Log")
 }

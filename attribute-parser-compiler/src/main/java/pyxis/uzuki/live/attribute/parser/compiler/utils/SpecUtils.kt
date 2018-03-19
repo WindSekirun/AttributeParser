@@ -3,7 +3,7 @@
 
 package pyxis.uzuki.live.attribute.parser.compiler.utils
 
-import com.squareup.javapoet.MethodSpec
-import javax.lang.model.element.Modifier
+import com.squareup.kotlinpoet.FunSpec
+import com.squareup.kotlinpoet.KModifier
 
-fun String.getMethodSpec(vararg modifiers: Modifier) = MethodSpec.methodBuilder(this).addModifiers(modifiers.toList())
+fun String.getFunSpec(vararg modifiers: KModifier) = FunSpec.builder(this).addModifiers(modifiers.toList())
