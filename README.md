@@ -1,4 +1,4 @@
-# AttributeParser [![codebeat badge](https://codebeat.co/badges/131cade3-7cd7-498d-97c1-f63e29bc97d1)](https://codebeat.co/projects/github-com-windsekirun-attributeparser-master) [ ![Download](https://api.bintray.com/packages/windsekirun/maven/attribute-parser/images/download.svg) ](https://bintray.com/windsekirun/maven/attribute-parser/_latestVersion)
+# AttributeParser [![codebeat badge](https://codebeat.co/badges/0781c064-171a-4d81-924f-10f1aa545039)](https://codebeat.co/projects/github-com-windsekirun-attributeparser-new-master) [ ![Download](https://api.bintray.com/packages/windsekirun/maven/attribute-parser/images/download.svg) ](https://bintray.com/windsekirun/maven/attribute-parser/_latestVersion)
 
 [![GitHub license](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg?style=flat)](http://www.apache.org/licenses/LICENSE-2.0) [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-AttributeParser-brightgreen.svg?style=flat)](https://android-arsenal.com/details/1/6804)
 
