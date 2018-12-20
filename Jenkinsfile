@@ -1,6 +1,13 @@
+@Library('jenkins-shared-library')_
 pipeline {
   agent any
   stages {
+    stage ('Start') {
+      steps {
+        // send build started notifications
+        sendNotifications 'STARTED'
+      }
+    }
     stage('Make Environment') {
       parallel {
         stage('Touch local.properties') {
@@ -24,6 +31,11 @@ pipeline {
       steps {
         sh './gradlew --no-daemon assembleDebug --stacktrace'
       }
+    }
+  }
+  post {
+    always {
+      sendNotifications currentBuild.result
     }
   }
   environment {
